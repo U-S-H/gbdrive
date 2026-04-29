@@ -2,117 +2,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GB Drive - The Complete App</title>
+    <title>GB Drive - Auth Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap');
-        body { font-family: 'Outfit', sans-serif; background: #f0f4f8; overflow-x: hidden; }
+        body { font-family: 'Outfit', sans-serif; background: #f8fafc; }
         .hidden { display: none; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
-        .neo-card { background: white; border-radius: 2.5rem; box-shadow: 0 15px 35px -5px rgba(0,0,0,0.05); }
-        .active-tab { background: #1e40af; color: white; box-shadow: 0 10px 20px rgba(30, 64, 175, 0.2); }
-        .btn-press { transition: all 0.2s; }
-        .btn-press:active { transform: scale(0.95); }
+        .neo-card { background: white; border-radius: 2.5rem; box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
     </style>
 </head>
-<body class="pb-28">
+<body class="pb-20">
 
-    <header class="p-4 flex justify-between items-center sticky top-0 z-[100] glass">
-        <div onclick="location.reload()" class="flex items-center gap-2 cursor-pointer">
-            <div class="bg-blue-600 text-white p-2 rounded-xl font-black italic shadow-lg">GB</div>
-            <p class="font-black text-blue-900 text-lg leading-none">DRIVE</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <button onclick="triggerSOS()" class="bg-red-50 text-red-500 p-2 rounded-full border border-red-100"><i data-lucide="shield-alert" class="w-5 h-5"></i></button>
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sweetie" class="w-10 h-10 rounded-full border-2 border-white shadow-md">
-        </div>
-    </header>
-
-    <main class="max-w-md mx-auto p-4 space-y-6">
-
-        <div class="flex bg-gray-200/50 p-1.5 rounded-2xl gap-2">
-            <button onclick="switchTab('p')" id="tab-p" class="flex-1 py-3 rounded-xl font-black text-sm active-tab transition-all">PASSENGER</button>
-            <button onclick="switchTab('d')" id="tab-d" class="flex-1 py-3 rounded-xl font-black text-sm text-gray-500 transition-all">DRIVER</button>
+    <div id="auth-section" class="min-h-screen flex flex-col items-center justify-center p-6 space-y-6">
+        <div class="text-center">
+            <div class="bg-blue-600 text-white w-16 h-16 flex items-center justify-center rounded-2xl font-black text-3xl mx-auto shadow-xl italic">GB</div>
+            <h1 class="text-3xl font-black text-blue-900 mt-4">Safar Shuru Karein</h1>
+            <p class="text-gray-400 text-sm">Please select your account type</p>
         </div>
 
-        <div id="p-panel" class="space-y-4">
-            <div class="h-32 bg-blue-600 rounded-[2rem] p-6 text-white relative overflow-hidden shadow-xl">
-                <div class="relative z-10">
-                    <h2 class="text-xl font-black">Safar Mubarak!</h2>
-                    <p class="text-xs opacity-80">GB ki sabse sasti aur fast ride.</p>
-                </div>
-                <i data-lucide="map" class="absolute -right-4 -bottom-4 w-32 h-32 opacity-10"></i>
+        <div class="w-full max-w-sm space-y-4">
+            <div class="flex gap-4 mb-6">
+                <button onclick="setRole('passenger')" id="role-p" class="flex-1 py-4 rounded-2xl font-black border-2 border-blue-600 bg-blue-50 text-blue-600">PASSENGER</button>
+                <button onclick="setRole('driver')" id="role-d" class="flex-1 py-4 rounded-2xl font-black border-2 border-gray-100 text-gray-400">DRIVER</button>
             </div>
 
-            <div class="neo-card p-6 space-y-4 border-b-8 border-blue-600">
-                <div class="space-y-3">
-                    <div class="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl">
-                        <i data-lucide="map-pin" class="text-green-500 w-5"></i>
-                        <input id="p-from" type="text" placeholder="Kahan se? (Location)" class="bg-transparent w-full outline-none font-bold text-sm">
-                    </div>
-                    <div class="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl">
-                        <i data-lucide="navigation" class="text-blue-600 w-5"></i>
-                        <input id="p-to" type="text" placeholder="Kahan tak? (Destination)" class="bg-transparent w-full outline-none font-bold text-sm">
-                    </div>
-                </div>
-
-                <div class="bg-blue-600 p-6 rounded-[2rem] text-white text-center shadow-lg">
-                    <p class="text-[9px] font-black opacity-60 mb-1 tracking-widest">APNA KIRAYA OFFER KAREIN</p>
-                    <div class="flex items-center justify-between px-4">
-                        <button onclick="changeFare(-50)" class="text-2xl font-bold w-10 h-10 bg-white/20 rounded-full btn-press">-</button>
-                        <div>
-                            <span id="fare-val" class="text-4xl font-black">350</span>
-                            <span class="text-xs font-bold block opacity-70 leading-none">PKR</span>
-                        </div>
-                        <button onclick="changeFare(50)" class="text-2xl font-bold w-10 h-10 bg-white/20 rounded-full btn-press">+</button>
-                    </div>
-                </div>
-
-                <button onclick="requestRide()" class="w-full bg-blue-900 text-white py-5 rounded-[2rem] font-black text-xl shadow-2xl btn-press">FIND DRIVER</button>
-            </div>
-        </div>
-
-        <div id="d-panel" class="hidden space-y-4">
+            <input id="auth-email" type="email" placeholder="Email Address" class="w-full p-5 rounded-2xl bg-white shadow-sm outline-none border-none font-bold">
+            <input id="auth-pass" type="password" placeholder="Password" class="w-full p-5 rounded-2xl bg-white shadow-sm outline-none border-none font-bold">
+            
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white p-5 rounded-3xl border-l-4 border-green-500 shadow-sm">
-                    <p class="text-[10px] text-gray-400 font-black">EARNINGS</p>
-                    <p class="text-2xl font-black">Rs 5,240</p>
-                </div>
-                <div class="bg-white p-5 rounded-3xl border-l-4 border-orange-400 shadow-sm">
-                    <p class="text-[10px] text-gray-400 font-black">RATING</p>
-                    <p class="text-2xl font-black flex items-center gap-1">4.9 <i data-lucide="star" class="w-4 h-4 fill-orange-400 text-orange-400"></i></p>
-                </div>
-            </div>
-
-            <div class="flex justify-between items-center px-2">
-                <h2 class="font-black text-xl">Live Requests</h2>
-                <div class="flex items-center gap-1"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span><span class="text-[10px] font-bold text-gray-500 uppercase">Searching...</span></div>
-            </div>
-
-            <div id="ride-requests" class="space-y-4 pb-10">
-                <div class="text-center py-20 text-gray-400">Rides load ho rahi hain sweetie...</div>
+                <button onclick="handleAuth('login')" class="bg-blue-900 text-white py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all">LOGIN</button>
+                <button onclick="handleAuth('signup')" class="bg-white text-blue-900 py-4 rounded-2xl font-black border border-blue-100 shadow-sm active:scale-95 transition-all">SIGNUP</button>
             </div>
         </div>
+    </div>
 
-    </main>
+    <div id="app-section" class="hidden">
+        <header class="p-4 flex justify-between items-center glass sticky top-0 z-[100] bg-white/80 backdrop-blur-md">
+            <div class="flex items-center gap-2">
+                <div class="bg-blue-600 text-white p-1.5 rounded-lg font-black italic">GB</div>
+                <p class="font-black text-blue-900" id="user-display-name">Welcome!</p>
+            </div>
+            <button onclick="logout()" class="text-gray-400"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+        </header>
 
-    <nav class="fixed bottom-0 left-0 right-0 glass p-5 flex justify-around items-center z-[100] rounded-t-[3rem] shadow-lg">
-        <button onclick="switchTab('p')" class="text-blue-600 flex flex-col items-center gap-1"><i data-lucide="home"></i><span class="text-[8px] font-bold">HOME</span></button>
-        <button onclick="alert('History coming soon!')" class="text-gray-300 flex flex-col items-center gap-1"><i data-lucide="calendar"></i><span class="text-[8px] font-bold">RIDES</span></button>
-        <button onclick="alert('Wallet Balance: 1250 PKR')" class="text-gray-300 flex flex-col items-center gap-1"><i data-lucide="wallet"></i><span class="text-[8px] font-bold">WALLET</span></button>
-        <button onclick="switchTab('d')" class="text-gray-300 flex flex-col items-center gap-1"><i data-lucide="car"></i><span class="text-[8px] font-bold">DRIVER</span></button>
-    </nav>
+        <main class="p-4 max-w-md mx-auto">
+            <div id="p-view" class="hidden space-y-6">
+                <div class="neo-card p-6 space-y-4 border-b-8 border-blue-600">
+                    <h2 class="font-black text-xl text-blue-900">Book Your Ride</h2>
+                    <input id="ride-from" type="text" placeholder="Pickup point" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm">
+                    <input id="ride-to" type="text" placeholder="Destination" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-sm">
+                    <button onclick="postRide()" class="w-full bg-blue-900 text-white py-5 rounded-[2rem] font-black text-xl shadow-xl">FIND DRIVER</button>
+                </div>
+            </div>
+
+            <div id="d-view" class="hidden space-y-4">
+                <h2 class="font-black text-xl px-2">Available Requests</h2>
+                <div id="ride-list" class="space-y-4">
+                    <p class="text-center py-10 text-gray-400">Searching for rides...</p>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <script>
         lucide.createIcons();
-        let fare = 350;
 
-        // Firebase Config (Aapki Config)
+        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyB2etNdujWulCIa6-bk0P6yaxYPgNlzzto",
             authDomain: "vibes-643ec.firebaseapp.com",
@@ -124,85 +83,73 @@
         };
 
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const db = firebase.database();
+        let selectedRole = 'passenger';
 
-        function switchTab(mode) {
-            const isDriver = mode === 'd';
-            document.getElementById('p-panel').classList.toggle('hidden', isDriver);
-            document.getElementById('d-panel').classList.toggle('hidden', !isDriver);
-            document.getElementById('tab-p').className = !isDriver ? 'flex-1 py-3 rounded-xl font-black text-sm active-tab' : 'flex-1 py-3 rounded-xl font-black text-sm text-gray-500';
-            document.getElementById('tab-d').className = isDriver ? 'flex-1 py-3 rounded-xl font-black text-sm active-tab' : 'flex-1 py-3 rounded-xl font-black text-sm text-gray-500';
+        function setRole(role) {
+            selectedRole = role;
+            document.getElementById('role-p').className = role === 'passenger' ? 'flex-1 py-4 rounded-2xl font-black border-2 border-blue-600 bg-blue-50 text-blue-600' : 'flex-1 py-4 rounded-2xl font-black border-2 border-gray-100 text-gray-400';
+            document.getElementById('role-d').className = role === 'driver' ? 'flex-1 py-4 rounded-2xl font-black border-2 border-blue-600 bg-blue-50 text-blue-600' : 'flex-1 py-4 rounded-2xl font-black border-2 border-gray-100 text-gray-400';
         }
 
-        function changeFare(amt) {
-            fare += amt;
-            if(fare < 150) fare = 150;
-            document.getElementById('fare-val').innerText = fare;
-        }
+        function handleAuth(type) {
+            const email = document.getElementById('auth-email').value;
+            const pass = document.getElementById('auth-pass').value;
+            if(!email || !pass) { alert("Details fill karein!"); return; }
 
-        // PASSENGER: Request Ride
-        function requestRide() {
-            const from = document.getElementById('p-from').value;
-            const to = document.getElementById('p-to').value;
-
-            if(!from || !to) {
-                alert("Location toh likho sweetie! 😘");
-                return;
+            if(type === 'signup') {
+                auth.createUserWithEmailAndPassword(email, pass).then(cred => {
+                    db.ref('users/' + cred.user.uid).set({ email: email, role: selectedRole });
+                    alert("Account Created! Login karein.");
+                }).catch(err => alert(err.message));
+            } else {
+                auth.signInWithEmailAndPassword(email, pass).catch(err => alert(err.message));
             }
-
-            const rideId = Date.now();
-            db.ref('rides/' + rideId).set({
-                pickup: from,
-                dropoff: to,
-                fare: fare,
-                status: 'pending',
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            }).then(() => {
-                alert("Ride Request Live! Driver ka intezar karein. 🔥");
-            });
         }
 
-        // DRIVER: Listen for Rides
-        db.ref('rides').on('value', (snapshot) => {
-            const container = document.getElementById('ride-requests');
-            container.innerHTML = "";
-            const data = snapshot.val();
-
-            if(!data) {
-                container.innerHTML = '<div class="text-center py-20 text-gray-400 font-bold">Abhi koi ride nahi hai... Intezar karein!</div>';
-                return;
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('app-section').classList.remove('hidden');
+                db.ref('users/' + user.uid).once('value').then(snap => {
+                    const data = snap.val();
+                    if(data.role === 'driver') {
+                        document.getElementById('d-view').classList.remove('hidden');
+                        loadRides();
+                    } else {
+                        document.getElementById('p-view').classList.remove('hidden');
+                    }
+                });
+            } else {
+                document.getElementById('auth-section').classList.remove('hidden');
+                document.getElementById('app-section').classList.add('hidden');
             }
-
-            Object.keys(data).reverse().forEach(id => {
-                const ride = data[id];
-                container.innerHTML += `
-                    <div class="bg-white p-6 rounded-[2.5rem] shadow-md border-l-8 border-blue-600 animate-in slide-in-from-right duration-300">
-                        <div class="flex justify-between mb-4">
-                            <span class="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase">Pending Request</span>
-                            <span class="text-[10px] font-bold text-gray-400">${ride.time}</span>
-                        </div>
-                        <div class="space-y-2">
-                            <div class="flex items-center gap-2"><i data-lucide="circle" class="w-2 h-2 text-green-500"></i><p class="font-bold text-sm">${ride.pickup}</p></div>
-                            <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-2 h-2 text-blue-600"></i><p class="font-bold text-sm">${ride.dropoff}</p></div>
-                        </div>
-                        <div class="mt-6 flex items-center justify-between">
-                            <div><p class="text-[8px] font-black text-gray-400 uppercase">Offered Fare</p><p class="text-2xl font-black text-green-600">Rs ${ride.fare}</p></div>
-                            <button onclick="acceptRide('${id}')" class="bg-gray-900 text-white px-8 py-3 rounded-2xl font-black text-xs btn-press">ACCEPT</button>
-                        </div>
-                    </div>
-                `;
-                lucide.createIcons();
-            });
         });
 
-        function acceptRide(id) {
-            alert("Safar Shuru! Passenger ko call karein. 🚗");
-            db.ref('rides/' + id).remove(); // Ride khatam (real app mein status change hota hai)
+        function postRide() {
+            const from = document.getElementById('ride-from').value;
+            const to = document.getElementById('ride-to').value;
+            db.ref('active_rides').push({ from, to, status: 'pending', user: auth.currentUser.uid });
+            alert("Ride Posted!");
         }
 
-        function triggerSOS() {
-            alert("EMERGENCY! Aapki location GB Police ko bhej di gayi hai.");
+        function loadRides() {
+            db.ref('active_rides').on('value', snap => {
+                const list = document.getElementById('ride-list');
+                list.innerHTML = "";
+                snap.forEach(child => {
+                    const r = child.val();
+                    list.innerHTML += `
+                        <div class="neo-card p-5 border-l-8 border-blue-600">
+                            <p class="font-black">${r.from} ➔ ${r.to}</p>
+                            <button class="mt-3 bg-blue-900 text-white w-full py-2 rounded-xl text-xs font-bold">ACCEPT RIDE</button>
+                        </div>`;
+                });
+            });
         }
+
+        function logout() { auth.signOut(); location.reload(); }
     </script>
 </body>
 </html>
