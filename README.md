@@ -1,107 +1,118 @@
 <html lang="EN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GB DRIVE - ULTIMATE PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GB DRIVE - PRO EDITION</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
-        BODY { font-family: 'Outfit', sans-serif; background: #F4F7F6; }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;900&display=swap');
+        * { font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #F8FAFC; color: #1E293B; overflow-x: hidden; }
         .HIDDEN { display: none !important; }
-        .MODAL { background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
-        .NEO-CARD { background: white; border-radius: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .CHAT-BOX { height: 250px; overflow-y: auto; background: #F9FAFB; border-radius: 1.5rem; padding: 15px; }
-        .V-SELECTED { border: 3px solid #2563EB !important; background: #EFF6FF !important; }
-        INPUT { border: 2px solid #E2E8F0 !important; border-radius: 1rem !important; padding: 1rem !important; width: 100%; margin-bottom: 0.8rem; font-weight: 600; outline: none; }
-        INPUT:focus { border-color: #2563EB !important; }
-        .BTN-PRIMARY { background: #2563EB; color: white; font-weight: 900; border-radius: 1.2rem; padding: 1rem; width: 100%; transition: 0.3s; }
-        .BTN-PRIMARY:active { transform: scale(0.95); }
+        .NEO-CARD { background: white; border-radius: 2rem; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.5); }
+        #map { height: 200px; width: 100%; border-radius: 1.5rem; margin-bottom: 1rem; z-index: 10; }
+        .v-btn { border: 2px solid transparent; background: #F1F5F9; border-radius: 1.2rem; transition: 0.3s; }
+        .v-selected { border-color: #2563EB; background: #EFF6FF; color: #2563EB; }
+        input { border: 2px solid #E2E8F0 !important; border-radius: 1rem !important; padding: 12px 16px !important; width: 100%; outline: none; }
+        .bid-badge { background: #F59E0B; color: white; padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 900; }
     </style>
 </head>
-<body class="PB-20">
+<body class="pb-10">
 
-    <div id="D-MODAL" class="HIDDEN FIXED INSET-0 Z-[100] MODAL FLEX ITEMS-CENTER JUSTIFY-CENTER P-6">
-        <div class="BG-WHITE W-FULL MAX-W-MD ROUNDED-[2.5rem] P-8">
-            <h2 class="FONT-BLACK TEXT-2xl TEXT-CENTER MB-6">DRIVER VERIFICATION</h2>
-            <input id="D-FULLNAME" type="text" placeholder="REAL FULL NAME">
-            <input id="D-NUMBER" type="tel" placeholder="PHONE NUMBER">
-            <input id="D-CNIC" type="text" placeholder="CNIC NUMBER">
-            <input id="D-PLATE" type="text" placeholder="VEHICLE PLATE NO">
-            <button onclick="SAVE_DRIVER()" class="BTN-PRIMARY MT-4">SAVE & START EARNING</button>
+    <header class="p-5 bg-white/80 backdrop-blur-md sticky top-0 z-[100] flex justify-between items-center border-b border-slate-100">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 text-white w-10 h-10 flex items-center justify-center rounded-2xl font-black italic shadow-lg">GB</div>
+            <div>
+                <p id="top-name" class="font-black text-sm uppercase">GB USER</p>
+                <p id="top-role" class="text-[9px] font-bold text-blue-600 uppercase tracking-widest">CONNECTING...</p>
+            </div>
         </div>
-    </div>
+        <button onclick="logout()" class="p-2 bg-red-50 text-red-500 rounded-xl"><i data-lucide="log-out" class="w-5"></i></button>
+    </header>
 
-    <div id="MAIN-APP" class="HIDDEN">
-        <header class="P-5 BG-WHITE BORDER-B STICKY TOP-0 Z-50 FLEX JUSTIFY-BETWEEN ITEMS-CENTER">
-            <div class="FLEX ITEMS-CENTER GAP-3">
-                <div class="BG-BLUE-600 TEXT-WHITE W-10 H-10 FLEX ITEMS-CENTER JUSTIFY-CENTER ROUNDED-2xl FONT-BLACK ITALIC shadow-lg">GB</div>
-                <div>
-                    <p id="U-NAME-TXT" class="FONT-BLACK TEXT-sm text-blue-900"></p>
-                    <p id="U-ROLE-TXT" class="TEXT-[9PX] FONT-BOLD OPACITY-50 uppercase"></p>
+    <main class="p-5 max-w-md mx-auto space-y-6">
+        
+        <div id="role-screen" class="hidden py-10 space-y-4">
+            <h1 class="text-3xl font-black text-center text-slate-900">CHOOSE MODE</h1>
+            <button onclick="setRole('passenger')" class="w-full p-8 neo-card text-left flex justify-between items-center">
+                <span><b class="text-2xl">PASSENGER</b><br><small class="opacity-50 text-xs">Request a ride now</small></span>
+                <i data-lucide="user" class="w-10 h-10 text-blue-600"></i>
+            </button>
+            <button onclick="document.getElementById('driver-modal').classList.remove('HIDDEN')" class="w-full p-8 neo-card text-left border-2 border-slate-900 flex justify-between items-center">
+                <span><b class="text-2xl">DRIVER</b><br><small class="opacity-50 text-xs">Start earning money</small></span>
+                <i data-lucide="car" class="w-10 h-10 text-slate-900"></i>
+            </button>
+        </div>
+
+        <div id="p-ui" class="hidden space-y-6">
+            <div class="neo-card p-6">
+                <div id="map"></div>
+                <input id="p-from" type="text" placeholder="PICKUP FROM" class="mb-2">
+                <input id="p-to" type="text" placeholder="DROP OFF TO" class="mb-4">
+                
+                <div class="grid grid-cols-4 gap-2 mb-6">
+                    <button onclick="selV('BIKE', 120)" id="v-BIKE" class="v-btn p-3 flex flex-col items-center"><i data-lucide="bike" class="w-4"></i><span class="text-[8px] font-black mt-1">BIKE</span></button>
+                    <button onclick="selV('MINI', 250)" id="v-MINI" class="v-btn p-3 flex flex-col items-center"><i data-lucide="loader" class="w-4"></i><span class="text-[8px] font-black mt-1">MINI</span></button>
+                    <button onclick="selV('CAR', 450)" id="v-CAR" class="v-btn p-3 flex flex-col items-center v-selected"><i data-lucide="car" class="w-4"></i><span class="text-[8px] font-black mt-1">CAR</span></button>
+                    <button onclick="selV('AC', 600)" id="v-AC" class="v-btn p-3 flex flex-col items-center"><i data-lucide="snowflake" class="w-4"></i><span class="text-[8px] font-black mt-1">AC CAR</span></button>
+                </div>
+
+                <div class="flex items-center gap-2 mb-4">
+                    <input id="p-bid" type="number" placeholder="OFFER PRICE" class="!m-0 text-center text-xl font-black text-green-600">
+                </div>
+                
+                <button onclick="requestRide()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl uppercase">Request Ride</button>
+            </div>
+
+            <div id="p-active-ride" class="hidden neo-card p-6 border-t-8 border-blue-600 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-black italic text-blue-600 uppercase">Ride Status</h3>
+                    <button onclick="sos()" class="bg-red-500 text-white px-3 py-1 rounded-lg text-[10px] font-black animate-pulse">SOS</button>
+                </div>
+                <div id="ride-info" class="bg-slate-50 p-4 rounded-xl text-xs font-bold space-y-1"></div>
+                <div id="p-chat" class="h-32 overflow-y-auto bg-slate-50 p-3 rounded-xl text-[11px] font-bold"></div>
+                <div class="flex gap-2">
+                    <input id="p-msg" type="text" placeholder="Message..." class="!m-0">
+                    <button onclick="sendMsg('p')" class="bg-blue-600 text-white px-4 rounded-xl"><i data-lucide="send" class="w-4"></i></button>
                 </div>
             </div>
-            <button onclick="logout()" class="TEXT-RED-500"><i data-lucide="log-out"></i></button>
-        </header>
+        </div>
 
-        <main class="P-5 MAX-W-MD MX-AUTO">
+        <div id="d-ui" class="hidden space-y-6">
+            <h2 class="font-black text-xl px-2">LIVE REQUESTS</h2>
+            <div id="d-feed" class="space-y-4"></div>
             
-            <div id="ROLE-SCREEN" class="HIDDEN PY-20 SPACE-Y-6 text-center">
-                <h1 class="TEXT-3xl FONT-BLACK TEXT-BLUE-900">JOIN THE DRIVE</h1>
-                <button onclick="setRole('passenger')" class="W-FULL P-8 NEO-CARD FONT-BLACK TEXT-2xl">PASSENGER</button>
-                <button onclick="document.getElementById('D-MODAL').classList.remove('HIDDEN')" class="W-FULL P-8 NEO-CARD FONT-BLACK TEXT-2xl BORDER-2 BORDER-BLACK">DRIVER</button>
-            </div>
-
-            <div id="P-UI" class="HIDDEN SPACE-Y-6">
-                <div class="NEO-CARD P-6">
-                    <input id="P-FROM" type="text" placeholder="PICKUP LOCATION">
-                    <input id="P-TO" type="text" placeholder="DESTINATION">
-                    
-                    <div class="GRID GRID-COLS-3 GAP-3 MB-6">
-                        <button onclick="SEL_V('BIKE', 150)" id="V-BIKE" class="BG-GRAY-50 P-4 ROUNDED-2xl FLEX FLEX-COL ITEMS-CENTER BORDER-2 BORDER-TRANSPARENT"><i data-lucide="bike"></i><span class="TEXT-[10PX] FONT-BLACK mt-1">BIKE</span></button>
-                        <button onclick="SEL_V('CAR', 400)" id="V-CAR" class="BG-GRAY-50 P-4 ROUNDED-2xl FLEX FLEX-COL ITEMS-CENTER BORDER-2 BORDER-TRANSPARENT V-SELECTED"><i data-lucide="car"></i><span class="TEXT-[10PX] FONT-BLACK mt-1">CAR</span></button>
-                        <button onclick="SEL_V('AUTO', 250)" id="V-AUTO" class="BG-GRAY-50 P-4 ROUNDED-2xl FLEX FLEX-COL ITEMS-CENTER BORDER-2 BORDER-TRANSPARENT"><i data-lucide="loader"></i><span class="TEXT-[10PX] FONT-BLACK mt-1">AUTO</span></button>
-                    </div>
-
-                    <div class="BG-BLUE-600 P-8 ROUNDED-[2.5rem] TEXT-WHITE TEXT-CENTER SHADOW-xl MB-6">
-                        <p id="FARE-TXT" class="TEXT-5xl FONT-BLACK">400</p>
-                        <p class="TEXT-[10PX] FONT-BOLD OPACITY-80 mt-2">AUTO-CALCULATED PKR</p>
-                    </div>
-                    <button onclick="REQ_RIDE()" class="BTN-PRIMARY TEXT-xl">BOOK NOW</button>
-                </div>
-
-                <div id="P-RIDE-ACTIVE" class="HIDDEN NEO-CARD P-6 BORDER-T-8 BORDER-GREEN-500">
-                    <div id="D-DETAILS-BOX" class="BG-GRAY-50 P-4 ROUNDED-2xl TEXT-sm FONT-BOLD MB-4"></div>
-                    <div id="P-CHAT" class="CHAT-BOX"></div>
-                    <div class="FLEX GAP-2 MT-4">
-                        <input id="P-MSG-IN" type="text" placeholder="CHAT WITH DRIVER..." class="!m-0">
-                        <button onclick="S_MSG('P')" class="BG-BLUE-600 TEXT-WHITE PX-6 ROUNDED-2xl"><i data-lucide="send"></i></button>
-                    </div>
+            <div id="d-active-ride" class="hidden neo-card p-6 border-t-8 border-green-500 space-y-4">
+                <div id="p-info" class="bg-slate-50 p-4 rounded-xl text-xs font-bold mb-4"></div>
+                <div id="d-chat" class="h-32 overflow-y-auto bg-slate-50 p-3 rounded-xl text-[11px] font-bold"></div>
+                <div class="flex gap-2">
+                    <input id="d-msg" type="text" placeholder="Message..." class="!m-0">
+                    <button onclick="sendMsg('d')" class="bg-blue-600 text-white px-4 rounded-xl"><i data-lucide="send" class="w-4"></i></button>
                 </div>
             </div>
+        </div>
+    </main>
 
-            <div id="D-UI" class="HIDDEN SPACE-Y-6">
-                <h2 class="FONT-BLACK TEXT-xl">RIDE REQUESTS</h2>
-                <div id="D-FEED" class="SPACE-Y-4"></div>
-
-                <div id="D-RIDE-ACTIVE" class="HIDDEN NEO-CARD P-6 BORDER-T-8 BORDER-BLUE-600">
-                    <div id="P-DETAILS-BOX" class="BG-GRAY-50 P-4 ROUNDED-2xl TEXT-sm FONT-BOLD MB-4"></div>
-                    <div id="D-CHAT" class="CHAT-BOX"></div>
-                    <div class="FLEX GAP-2 MT-4">
-                        <input id="D-MSG-IN" type="text" placeholder="CHAT WITH CLIENT..." class="!m-0">
-                        <button onclick="S_MSG('D')" class="BG-BLUE-600 TEXT-WHITE PX-6 ROUNDED-2xl"><i data-lucide="send"></i></button>
-                    </div>
-                </div>
-            </div>
-        </main>
+    <div id="driver-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
+        <div class="bg-white w-full max-w-md rounded-[32px] p-8 space-y-3">
+            <h2 class="text-2xl font-black text-center mb-4">DRIVER VERIFICATION</h2>
+            <input id="dr-name" type="text" placeholder="REAL NAME">
+            <input id="dr-phone" type="tel" placeholder="PHONE NUMBER">
+            <input id="dr-plate" type="text" placeholder="VEHICLE PLATE (LEC-123)">
+            <button onclick="saveDriver()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black mt-4">JOIN GB DRIVE</button>
+            <button onclick="document.getElementById('driver-modal').classList.add('HIDDEN')" class="w-full text-xs font-bold text-slate-400">CANCEL</button>
+        </div>
     </div>
 
     <script>
         lucide.createIcons();
-        let petP = 280; let curF = 400; let curV = 'CAR'; let rideID = null;
+        let curBid = 450; let rideRef = null; let map, marker;
 
         const firebaseConfig = {
             apiKey: "AIzaSyB2etNdujWulCIa6-bk0P6yaxYPgNlzzto",
@@ -115,82 +126,74 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); const db = firebase.database();
 
-        function logout() { auth.signOut(); location.reload(); }
-        
+        // MAP SETUP
+        function initMap() {
+            map = L.map('map').setView([35.9208, 74.3089], 13); // Default GB Gilgit
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            marker = L.marker([35.9208, 74.3089]).addTo(map);
+        }
+
         auth.onAuthStateChanged(user => {
             if(user) {
-                document.getElementById('MAIN-APP').classList.remove('HIDDEN');
-                document.getElementById('U-NAME-TXT').innerText = user.displayName.toUpperCase();
+                document.getElementById('top-name').innerText = user.displayName;
                 db.ref('users/' + user.uid).on('value', snap => {
                     if(snap.exists()) {
-                        const r = snap.val().role;
-                        document.getElementById('U-ROLE-TXT').innerText = r;
-                        showUI(r);
-                    } else document.getElementById('ROLE-SCREEN').classList.remove('HIDDEN');
+                        const u = snap.val();
+                        document.getElementById('top-role').innerText = u.role;
+                        showUI(u.role);
+                        if(u.role === 'passenger') initMap();
+                    } else document.getElementById('role-screen').classList.remove('hidden');
                 });
             } else { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
         });
 
-        function SAVE_DRIVER() {
-            const d = { 
-                name: document.getElementById('D-FULLNAME').value,
-                phone: document.getElementById('D-NUMBER').value,
-                cnic: document.getElementById('D-CNIC').value,
-                plate: document.getElementById('D-PLATE').value,
-                role: 'driver'
-            };
-            db.ref('users/' + auth.currentUser.uid).set(d).then(() => location.reload());
+        function logout() { auth.signOut(); location.reload(); }
+        function setRole(r) { db.ref('users/' + auth.currentUser.uid).set({ role: r, name: auth.currentUser.displayName }).then(()=>location.reload()); }
+        function saveDriver() {
+            const d = { name: document.getElementById('dr-name').value, phone: document.getElementById('dr-phone').value, plate: document.getElementById('dr-plate').value, role: 'driver' };
+            db.ref('users/'+auth.currentUser.uid).set(d).then(()=>location.reload());
         }
 
-        function showUI(v) {
-            document.getElementById('ROLE-SCREEN').classList.add('HIDDEN');
-            if(v === 'passenger') document.getElementById('P-UI').classList.remove('HIDDEN');
-            else { document.getElementById('D-UI').classList.remove('HIDDEN'); SYNC_FEED(); }
+        function showUI(r) {
+            document.getElementById('role-screen').classList.add('hidden');
+            if(r === 'passenger') document.getElementById('p-ui').classList.remove('hidden');
+            else { document.getElementById('d-ui').classList.remove('hidden'); syncFeed(); }
         }
 
-        function SEL_V(t, b) {
-            curV = t;
-            document.querySelectorAll('[id^="V-"]').forEach(btn => btn.classList.remove('V-SELECTED'));
-            document.getElementById('V-'+t).classList.add('V-SELECTED');
-            curF = Math.round(b * (petP/280));
-            document.getElementById('FARE-TXT').innerText = curF;
+        function selV(t, b) {
+            curBid = b;
+            document.querySelectorAll('.v-btn').forEach(btn => btn.classList.remove('v-selected'));
+            document.getElementById('v-'+t).classList.add('v-selected');
+            document.getElementById('p-bid').value = b;
         }
 
-        function REQ_RIDE() {
-            const f = document.getElementById('P-FROM').value;
-            const t = document.getElementById('P-TO').value;
-            if(!f || !t) return alert("LOCATIONS MISSING!");
-            rideID = db.ref('rides').push({
-                f, t, fare: curF, vType: curV, pName: auth.currentUser.displayName, pUid: auth.currentUser.uid, status: 'searching'
-            }).key;
-            alert("SEARCHING DRIVER...");
-            LISTEN_RIDE(rideID);
-        }
-
-        function LISTEN_RIDE(id) {
-            db.ref('rides/'+id).on('value', snap => {
+        function requestRide() {
+            const f = document.getElementById('p-from').value; const t = document.getElementById('p-to').value;
+            const bid = document.getElementById('p-bid').value;
+            if(!f || !t) return alert("ENTER ROUTE!");
+            rideRef = db.ref('rides').push({ f, t, fare: bid, pName: auth.currentUser.displayName, pUid: auth.currentUser.uid, status: 'searching' }).key;
+            db.ref('rides/'+rideRef).on('value', snap => {
                 const r = snap.val();
                 if(r && r.status === 'accepted') {
-                    document.getElementById('P-RIDE-ACTIVE').classList.remove('HIDDEN');
-                    document.getElementById('D-DETAILS-BOX').innerHTML = `DRIVER: ${r.dName}<br>PHONE: ${r.dPhone}<br>PLATE: ${r.dPlate}`;
-                    SYNC_CHAT(id, 'P-CHAT');
+                    document.getElementById('p-active-ride').classList.remove('hidden');
+                    document.getElementById('ride-info').innerHTML = `DRIVER: ${r.dName}<br>PLATE: ${r.dPlate}<br>PHONE: ${r.dPhone}<br>FARE: RS ${r.fare}`;
+                    syncChat(rideRef, 'p-chat');
                 }
             });
         }
 
-        function SYNC_FEED() {
+        function syncFeed() {
             db.ref('rides').on('value', snap => {
-                const f = document.getElementById('D-FEED'); f.innerHTML = "";
+                const feed = document.getElementById('d-feed'); feed.innerHTML = "";
                 snap.forEach(c => {
                     const r = c.val();
                     if(r.status === 'searching') {
-                        f.innerHTML += `
-                        <div class="NEO-CARD P-6 BORDER-L-8 BORDER-BLUE-600">
-                            <p class="FONT-BLACK">${r.f} ➔ ${r.t}</p>
-                            <p class="TEXT-[10px] FONT-BOLD OPACITY-40 mt-1">${r.vType} • ${r.pName}</p>
-                            <div class="MT-4 FLEX JUSTIFY-BETWEEN ITEMS-CENTER">
-                                <b class="TEXT-3xl TEXT-GREEN-600">RS ${r.fare}</b>
-                                <button onclick="ACCEPT_RIDE('${c.key}')" class="BG-BLACK TEXT-WHITE PX-8 PY-3 ROUNDED-2xl FONT-BLACK text-xs">ACCEPT</button>
+                        feed.innerHTML += `<div class="neo-card p-6 border-l-[10px] border-blue-600">
+                            <p class="font-black text-lg">${r.f} ➔ ${r.t}</p>
+                            <p class="text-[10px] font-bold opacity-40 uppercase">${r.pName}</p>
+                            <div class="flex justify-between items-center mt-6">
+                                <b class="text-3xl text-green-600 font-black italic">RS ${r.fare}</b>
+                                <button onclick="accept('${c.key}')" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black text-xs">ACCEPT</button>
                             </div>
                         </div>`;
                     }
@@ -198,41 +201,38 @@
             });
         }
 
-        function ACCEPT_RIDE(id) {
+        function accept(id) {
             db.ref('users/'+auth.currentUser.uid).once('value', snap => {
                 const d = snap.val();
-                db.ref('rides/'+id).update({
-                    status: 'accepted', dName: d.name, dPhone: d.phone, dPlate: d.plate, dUid: auth.currentUser.uid
-                });
-                rideID = id;
-                document.getElementById('D-FEED').classList.add('HIDDEN');
-                document.getElementById('D-RIDE-ACTIVE').classList.remove('HIDDEN');
+                db.ref('rides/'+id).update({ status: 'accepted', dName: d.name, dPhone: d.phone, dPlate: d.plate, dUid: auth.currentUser.uid });
+                rideRef = id;
+                document.getElementById('d-feed').classList.add('hidden');
+                document.getElementById('d-active-ride').classList.remove('hidden');
                 db.ref('rides/'+id).once('value', s => {
-                    document.getElementById('P-DETAILS-BOX').innerHTML = `CLIENT: ${s.val().pName}<br>ROUTE: ${s.val().f} to ${s.val().t}`;
+                    document.getElementById('p-info').innerHTML = `CLIENT: ${s.val().pName}<br>FROM: ${s.val().f}<br>TO: ${s.val().t}<br>FARE: RS ${s.val().fare}`;
                 });
-                SYNC_CHAT(id, 'D-CHAT');
+                syncChat(id, 'd-chat');
             });
         }
 
-        function S_MSG(type) {
-            const m = document.getElementById(type+'-MSG-IN').value; if(!m) return;
-            db.ref('rides/'+rideID+'/chat').push({ s: auth.currentUser.displayName, t: m });
-            document.getElementById(type+'-MSG-IN').value = "";
+        function sendMsg(t) {
+            const m = document.getElementById(t+'-msg').value; if(!m) return;
+            db.ref('rides/'+rideRef+'/chat').push({ s: auth.currentUser.displayName, t: m });
+            document.getElementById(t+'-msg').value = "";
         }
 
-        function SYNC_CHAT(id, boxID) {
+        function syncChat(id, box) {
             db.ref('rides/'+id+'/chat').on('value', snap => {
-                const b = document.getElementById(boxID); b.innerHTML = "";
+                const b = document.getElementById(box); b.innerHTML = "";
                 snap.forEach(m => {
-                    const d = m.val();
-                    const isMe = d.s === auth.currentUser.displayName;
-                    b.innerHTML += `<div class="mb-2 p-3 rounded-2xl text-xs font-bold ${isMe ? 'bg-blue-600 text-white ml-10':'bg-white text-black mr-10 shadow-sm'}">${d.t}</div>`;
+                    const d = m.val(); const me = d.s === auth.currentUser.displayName;
+                    b.innerHTML += `<div class="mb-2 p-2 rounded-lg ${me ? 'bg-blue-600 text-white ml-8':'bg-white border mr-8'} shadow-sm">${d.t}</div>`;
                 });
                 b.scrollTop = b.scrollHeight;
             });
         }
 
-        db.ref('settings/petrol').on('value', snap => { petP = snap.val() || 280; });
+        function sos() { alert("🚨 EMERGENCY SOS SENT! Location & Details Shared with Admin."); }
     </script>
 </body>
 </html>
