@@ -23,9 +23,9 @@
         .v-selector { background: white; border: 2px solid #f3f4f6; border-radius: 18px; padding: 12px; transition: 0.2s; filter: grayscale(1); opacity: 0.7; }
         .v-selected { border-color: #2563eb; background: #eff6ff; filter: grayscale(0); opacity: 1; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.15); }
         .btn-primary { background: #2563eb; color: white; border-radius: 18px; padding: 20px; width: 100%; font-weight: 900; box-shadow: 0 10px 15px -3px rgba(37,99,235,0.3); transition: 0.2s; }
+        .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
         .btn-primary:active { transform: scale(0.97); }
         .chat-bubble { padding: 10px 14px; border-radius: 16px; font-size: 13px; font-weight: 600; max-width: 80%; }
-        /* Fix for the screenshot issue where elements overlap */
         header { position: sticky; top: 0; z-index: 1000; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #f1f5f9; }
     </style>
 </head>
@@ -73,12 +73,8 @@
             <div id="passenger-view" class="hidden space-y-4">
                 <div id="map"></div>
                 <div class="card p-6 space-y-4">
-                    <div class="input-group">
-                        <input id="pickup-input" type="text" placeholder="Set Pickup Location">
-                    </div>
-                    <div class="input-group">
-                        <input id="drop-input" type="text" placeholder="Set Destination">
-                    </div>
+                    <div class="input-group"><input id="pickup-input" type="text" placeholder="Set Pickup Location"></div>
+                    <div class="input-group"><input id="drop-input" type="text" placeholder="Set Destination"></div>
                     <div class="grid grid-cols-4 gap-2">
                         <button onclick="selectVehicle('BIKE', 150)" id="v-BIKE" class="v-selector flex flex-col items-center"><i data-lucide="bike" class="w-5 mb-1"></i><span class="text-[9px] font-black">BIKE</span></button>
                         <button onclick="selectVehicle('MINI', 280)" id="v-MINI" class="v-selector flex flex-col items-center"><i data-lucide="zap" class="w-5 mb-1"></i><span class="text-[9px] font-black">MINI</span></button>
@@ -148,7 +144,6 @@
         firebase.initializeApp(fbConfig);
         const auth = firebase.auth(); const db = firebase.database();
 
-        // AUTH MONITORING
         auth.onAuthStateChanged(user => {
             if(user) {
                 document.getElementById('login-screen').classList.add('hidden');
@@ -178,30 +173,32 @@
         }
 
         function renderView() {
-            document.getElementById('select-role-view').classList.add('hidden');
+            document.querySelectorAll('#passenger-view, #driver-view, #select-role-view').forEach(el => el.classList.add('hidden'));
             if(globalUserRole === 'passenger') {
                 document.getElementById('passenger-view').classList.remove('hidden');
                 initMapBox();
-                monitorActiveRides();
             } else {
                 document.getElementById('driver-view').classList.remove('hidden');
                 syncLiveRequests();
-                monitorActiveRides();
             }
+            monitorActiveRides();
         }
 
         function assignRole(r) { db.ref('users/' + auth.currentUser.uid).set({role: r, name: auth.currentUser.displayName}); }
         function showDriverForm() { document.getElementById('driver-registration-modal').classList.remove('hidden'); }
+        
         function submitDriverData() {
             const name = document.getElementById('d-reg-name').value;
             const plate = document.getElementById('d-reg-plate').value;
             const phone = document.getElementById('d-reg-phone').value;
-            if(!name || !plate) return alert("Sweetie, fill all driver info!");
+            if(!name || !plate || !phone) return alert("Sweetie, please fill all fields!");
             db.ref('users/' + auth.currentUser.uid).set({role: 'driver', name, plate, phone});
             document.getElementById('driver-registration-modal').classList.add('hidden');
         }
 
         function initMapBox() {
+            let mapContainer = document.getElementById('map');
+            if (mapContainer._leaflet_id) return;
             let map = L.map('map', {zoomControl: false}).setView([35.9208, 74.3089], 14);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             L.marker([35.9208, 74.3089]).addTo(map);
@@ -217,12 +214,28 @@
             const f = document.getElementById('pickup-input').value;
             const t = document.getElementById('drop-input').value;
             const fare = document.getElementById('fare-input').value;
+            const btn = document.getElementById('request-btn');
             if(!f || !t) return alert("Please set your route!");
 
             const req = db.ref('rides').push();
             activeRideId = req.key;
             req.set({ f, t, fare, pName: auth.currentUser.displayName, pUid: auth.currentUser.uid, status: 'searching' });
-            document.getElementById('request-btn').innerText = "LOOKING FOR PARTNERS...";
+            
+            btn.innerText = "SEARCHING (15s)...";
+            btn.disabled = true;
+
+            // 15 Second Timeout logic
+            setTimeout(() => {
+                db.ref('rides/' + activeRideId).once('value', snap => {
+                    const data = snap.val();
+                    if(data && data.status === 'searching') {
+                        db.ref('rides/' + activeRideId).remove();
+                        alert("No driver found sweetie. Try again!");
+                        btn.innerText = "Find Driver";
+                        btn.disabled = false;
+                    }
+                });
+            }, 15000);
         }
 
         function syncLiveRequests() {
@@ -233,12 +246,12 @@
                     const r = child.val();
                     if(r.status === 'searching') {
                         feed.innerHTML += `
-                        <div class="card p-6 border-l-8 border-blue-600 shadow-lg">
+                        <div class="card p-6 border-l-8 border-blue-600">
                             <div class="flex justify-between items-start mb-4">
                                 <div><b class="text-sm block uppercase">${r.f} ➔ ${r.t}</b><small class="text-[9px] font-black text-slate-400">CLIENT: ${r.pName}</small></div>
                                 <div class="text-2xl font-black text-green-600">Rs ${r.fare}</div>
                             </div>
-                            <button onclick="acceptPassengerRequest('${child.key}')" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">Accept Trip</button>
+                            <button onclick="acceptPassengerRequest('${child.key}')" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase">Accept Trip</button>
                         </div>`;
                     }
                 });
@@ -265,7 +278,7 @@
                         
                         const detailBox = document.getElementById('trip-party-info');
                         detailBox.innerHTML = globalUserRole === 'passenger' ? 
-                            `DRIVER: ${r.dName}<br>PLATE: ${r.dPlate}<br>FARE: PKR ${r.fare}` : 
+                            `DRIVER: ${r.dName}<br>PLATE: ${r.dPlate}<br>PHONE: ${r.dPhone}<br>FARE: PKR ${r.fare}` : 
                             `CLIENT: ${r.pName}<br>FROM: ${r.f}<br>TO: ${r.t}<br>FARE: PKR ${r.fare}`;
                         syncTripChat();
                     }
