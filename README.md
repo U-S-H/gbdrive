@@ -1,8 +1,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jinnah School & Degree College Astore | Official Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jinnah School & Degree College Astore | Smart Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -11,22 +11,21 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        * { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
-        .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .hero-bg { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); }
-        .card-modern { background: white; border-radius: 20px; transition: 0.3s; border: 1px solid #f1f5f9; }
-        .card-modern:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        * { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
+        .hero-gradient { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+        .card-modern { background: white; border-radius: 20px; transition: 0.3s; border: 1px solid #e2e8f0; }
+        .card-modern:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
         .hidden { display: none !important; }
-        
-        /* Floating WhatsApp */
-        .fab-whatsapp { position: fixed; bottom: 30px; right: 30px; background: #25D366; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 30px; z-index: 1000; box-shadow: 0 10px 20px rgba(37,211,102,0.3); cursor: pointer; }
+        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 25s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="bg-slate-50">
 
-    <div class="bg-blue-700 text-white py-2 overflow-hidden whitespace-nowrap">
-        <div class="inline-block animate-pulse px-4 font-bold uppercase text-[10px] tracking-widest">
-            Admissions 2026 Open • Jinnah College Astore tops GB Board • Digital Library Access Available Now •
+    <div class="bg-blue-800 py-2 overflow-hidden border-b border-blue-700">
+        <div class="animate-marquee text-white text-[10px] font-bold uppercase tracking-widest">
+            Admissions 2026 Open for Astore Region • High Grade Performance in Board Exams • Digital Student Portal Live •
         </div>
     </div>
 
@@ -34,87 +33,82 @@
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="bg-blue-900 text-white p-2 rounded-lg font-bold">JS</div>
-                <h1 class="font-black text-xl tracking-tighter text-blue-950">JINNAH <span class="text-blue-600 block text-[10px] tracking-[4px] uppercase">College Astore</span></h1>
+                <div>
+                    <h1 class="font-black text-sm tracking-tighter text-blue-950 uppercase leading-none">Jinnah College</h1>
+                    <span class="text-blue-600 text-[8px] font-bold uppercase tracking-widest">Astore Valley</span>
+                </div>
             </div>
-            <div id="user-info" class="hidden flex items-center gap-4">
-                <span id="user-name" class="text-xs font-bold uppercase"></span>
-                <button onclick="handleLogout()" class="text-red-500 text-xs font-bold uppercase underline">Logout</button>
+            <div id="auth-status" class="flex gap-4 items-center">
+                <button id="login-btn" onclick="loginWithGoogle()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase">Google Login</button>
+                <div id="user-ui" class="hidden flex items-center gap-3">
+                    <span id="user-display-name" class="text-[10px] font-bold text-slate-600 uppercase"></span>
+                    <button onclick="logout()" class="text-red-500"><i class="fas fa-power-off"></i></button>
+                </div>
             </div>
-            <button id="login-btn" onclick="loginWithGoogle()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-bold uppercase shadow-lg shadow-blue-200">Google Login</button>
         </div>
     </nav>
 
-    <header class="hero-bg text-white py-24 px-6 text-center relative overflow-hidden">
-        <div class="container mx-auto relative z-10">
-            <span class="bg-white/10 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/20">Astore Valley, GB</span>
-            <h2 class="text-5xl md:text-7xl font-black mt-6 mb-8 leading-tight">Shaping Future <br> <span class="text-blue-400">Leaders</span></h2>
-            <p class="text-slate-300 max-w-xl mx-auto mb-10 text-sm font-medium">The most professional educational institute in the region, now fully digital for students and parents.</p>
-            <div class="flex justify-center gap-4">
-                <a href="#portal" class="bg-white text-blue-950 px-8 py-4 rounded-2xl font-bold">Student Portal</a>
-                <a href="#about" class="border-2 border-white/20 px-8 py-4 rounded-2xl font-bold">Our Vision</a>
+    <header class="hero-gradient text-white py-20 px-6 text-center">
+        <div class="container mx-auto">
+            <h2 class="text-4xl md:text-6xl font-black mb-6 leading-tight">Digital Education <br>in Astore</h2>
+            <p class="text-blue-100 text-sm max-w-lg mx-auto mb-10">Professional environment and modern technology for the future leaders of Gilgit Baltistan.</p>
+            <div class="flex justify-center gap-3">
+                <button class="bg-white text-blue-900 px-6 py-3 rounded-xl font-bold text-xs uppercase shadow-xl">Apply Now</button>
+                <button class="border border-white/30 px-6 py-3 rounded-xl font-bold text-xs uppercase">E-Library</button>
             </div>
         </div>
     </header>
 
-    <section id="about" class="py-20 container mx-auto px-6 grid md:grid-cols-3 gap-8">
-        <div class="card-modern p-10 border-b-4 border-blue-600">
-            <i class="fas fa-microscope text-3xl text-blue-600 mb-6"></i>
-            <h3 class="font-extrabold text-xl mb-4 uppercase">Science Excellence</h3>
-            <p class="text-slate-500 text-sm leading-relaxed">Advanced laboratories for physics and biology experiments tailored for Astore Board exams.</p>
+    <section class="py-16 container mx-auto px-6 grid md:grid-cols-3 gap-6">
+        <div class="card-modern p-8 border-l-4 border-blue-600">
+            <i class="fas fa-microscope text-2xl text-blue-600 mb-4"></i>
+            <h3 class="font-bold text-sm uppercase mb-2">Science Wing</h3>
+            <p class="text-slate-500 text-[11px] leading-relaxed">Fully equipped labs for professional scientific research and practical exams.</p>
         </div>
-        <div class="card-modern p-10 border-b-4 border-green-600">
-            <i class="fas fa-user-graduate text-3xl text-green-600 mb-6"></i>
-            <h3 class="font-extrabold text-xl mb-4 uppercase">Scholarships</h3>
-            <p class="text-slate-500 text-sm leading-relaxed">Merit-based financial aid for brilliant students of Gilgit Baltistan to pursue higher dreams.</p>
+        <div class="card-modern p-8 border-l-4 border-green-600">
+            <i class="fas fa-graduation-cap text-2xl text-green-600 mb-4"></i>
+            <h3 class="font-bold text-sm uppercase mb-2">Scholarships</h3>
+            <p class="text-slate-500 text-[11px] leading-relaxed">Financial support for meritorious students across the GB region.</p>
         </div>
-        <div class="card-modern p-10 border-b-4 border-purple-600">
-            <i class="fas fa-bus text-3xl text-purple-600 mb-6"></i>
-            <h3 class="font-extrabold text-xl mb-4 uppercase">Secure Transport</h3>
-            <p class="text-slate-500 text-sm leading-relaxed">Safe and professional transport network covering every sector of Astore Valley.</p>
+        <div class="card-modern p-8 border-l-4 border-purple-600">
+            <i class="fas fa-bus text-2xl text-purple-600 mb-4"></i>
+            <h3 class="font-bold text-sm uppercase mb-2">Secure Vans</h3>
+            <p class="text-slate-500 text-[11px] leading-relaxed">Coordinated transport network for safe student travel within the valley.</p>
         </div>
     </section>
 
-    <section id="portal" class="bg-blue-950 py-24 px-6">
-        <div class="max-w-4xl mx-auto bg-white rounded-[32px] overflow-hidden shadow-2xl flex flex-col md:flex-row">
-            <div class="md:w-1/3 bg-blue-900 text-white p-12">
-                <h3 class="text-2xl font-black mb-4 uppercase leading-tight">Digital <br>Transcript</h3>
-                <p class="text-blue-300 text-xs font-bold uppercase mb-8">Access 2026 Results</p>
-                <div class="w-20 h-20 bg-blue-800 rounded-2xl flex items-center justify-center border border-white/10">
-                    <i class="fas fa-file-invoice text-3xl text-blue-400"></i>
+    <section id="portal" class="bg-slate-900 py-20 px-6">
+        <div class="max-w-xl mx-auto bg-white rounded-3xl p-8 shadow-2xl">
+            <h3 class="text-xl font-black text-slate-900 mb-2 uppercase text-center">Student Portal</h3>
+            <p class="text-center text-[10px] text-slate-400 font-bold uppercase mb-8">Official Result Verification</p>
+            
+            <div class="space-y-4">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Registration Number</label>
+                    <input id="student-reg" type="text" placeholder="JS-2026-XXXX" class="w-full bg-transparent outline-none font-bold text-slate-800">
                 </div>
+                <button onclick="fetchResult()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg active:scale-95 transition">Fetch Result</button>
             </div>
-            <div class="md:w-2/3 p-12">
-                <div class="space-y-6">
-                    <div>
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Student Registration No.</label>
-                        <input id="reg-no" type="text" placeholder="e.g. JS-2026-101" class="w-full bg-slate-50 p-4 rounded-xl border border-slate-100 outline-none focus:border-blue-600 font-bold">
-                    </div>
-                    <button onclick="checkResult()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition">Fetch Official Result</button>
-                    <div id="result-display" class="hidden mt-6 p-4 bg-green-50 rounded-xl border border-green-100">
-                        <p class="text-xs font-bold text-green-700 uppercase">Status: PASSED (Grade A+)</p>
-                    </div>
-                </div>
+            
+            <div id="result-box" class="hidden mt-6 p-5 rounded-2xl bg-blue-50 border border-blue-100 text-center">
+                <p id="res-name" class="font-black text-blue-900 uppercase text-xs"></p>
+                <p id="res-grade" class="text-2xl font-black text-blue-600 mt-2"></p>
             </div>
         </div>
     </section>
 
-    <div class="fixed bottom-4 left-4 z-[5000]">
-        <button id="secretTap" class="opacity-10 hover:opacity-100 grayscale hover:grayscale-0 transition-all">
+    <div class="fixed bottom-6 left-6 z-[5000]">
+        <button id="secretAdmin" class="opacity-10 hover:opacity-100 grayscale hover:grayscale-0 transition-all duration-500">
             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_Drive_icon_%282020%29.svg/1200px-Google_Drive_icon_%282020%29.svg.png" class="w-10 h-10">
         </button>
     </div>
 
-    <div class="fab-whatsapp" onclick="window.open('https://wa.me/923000000000')">
+    <div onclick="window.open('https://wa.me/923000000000')" class="fixed bottom-6 right-6 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center text-white text-2xl shadow-xl cursor-pointer z-[4000] active:scale-90 transition">
         <i class="fab fa-whatsapp"></i>
     </div>
 
-    <footer class="bg-white border-t border-slate-100 py-12 px-6 text-center">
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[4px] mb-4">Official Jinnah College Portal 2026</p>
-        <p class="text-slate-500 text-xs">Main Road Astore, Gilgit-Baltistan</p>
-    </footer>
-
     <script>
-        // FIREBASE CONFIG (Vibes Project)
+        // Firebase Configuration
         const fbConfig = {
             apiKey: "AIzaSyB2etNdujWulCIa6-bk0P6yaxYPgNlzzto",
             authDomain: "vibes-643ec.firebaseapp.com",
@@ -125,67 +119,58 @@
             appId: "1:1073588694472:web:7a87ed21652f303e3164fd"
         };
         firebase.initializeApp(fbConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
+        const auth = firebase.auth(); const db = firebase.database();
 
-        // AUTH LOGIC
+        // Auth Logic
         auth.onAuthStateChanged(user => {
             if(user) {
                 document.getElementById('login-btn').classList.add('hidden');
-                document.getElementById('user-info').classList.remove('hidden');
-                document.getElementById('user-name').innerText = user.displayName;
+                document.getElementById('user-ui').classList.remove('hidden');
+                document.getElementById('user-display-name').innerText = user.displayName;
             } else {
                 document.getElementById('login-btn').classList.remove('hidden');
-                document.getElementById('user-info').classList.add('hidden');
+                document.getElementById('user-ui').classList.add('hidden');
             }
         });
 
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider);
-        }
+        function loginWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+        function logout() { auth.signOut().then(() => location.reload()); }
 
-        function handleLogout() {
-            auth.signOut().then(() => location.reload());
-        }
-
-        // RESULT CHECKER LOGIC
-        function checkResult() {
-            const reg = document.getElementById('reg-no').value;
-            if(!reg) return alert("Please enter Registration Number");
+        // Fetch Result from Firebase
+        function fetchResult() {
+            const reg = document.getElementById('student-reg').value;
+            if(!reg) return alert("Enter Registration No");
             
-            // Database se result fetch karna
             db.ref('results/' + reg).once('value', snap => {
                 const data = snap.val();
+                const box = document.getElementById('result-box');
                 if(data) {
-                    document.getElementById('result-display').classList.remove('hidden');
-                    document.getElementById('result-display').innerHTML = `
-                        <p class="text-xs font-bold text-blue-700 uppercase">Student: ${data.name}</p>
-                        <p class="text-lg font-black text-slate-900 mt-2">Grade: ${data.grade}</p>
-                    `;
+                    box.classList.remove('hidden');
+                    document.getElementById('res-name').innerText = data.name;
+                    document.getElementById('res-grade').innerText = "GRADE: " + data.grade;
                 } else {
-                    alert("Result not found in database.");
+                    alert("No Record Found");
+                    box.classList.add('hidden');
                 }
             });
         }
 
-        // SECRET ADMIN SYSTEM (5 TAPS ON LOGO)
+        // Secret Admin (5 Taps Logic)
         let taps = 0;
-        document.getElementById('secretTap').addEventListener('click', () => {
+        document.getElementById('secretAdmin').addEventListener('click', () => {
             taps++;
             if(taps === 5) {
-                const pass = prompt("Enter Administrative Key:");
-                if(pass === "gb46") {
-                    alert("Welcome Principal! Accessing Admin Controls...");
-                    // Yahan aap admin panel khol sakte hain
+                const key = prompt("ADMIN SECURE KEY:");
+                if(key === "gb46") {
+                    alert("Principal Dashboard Access Granted.");
+                    // Add admin redirect logic here
                 } else {
-                    alert("Invalid Key!");
+                    alert("Unauthorized Access Attempt.");
                     taps = 0;
                 }
             }
-            setTimeout(() => taps = 0, 3000); // 3 seconds mein reset
+            setTimeout(() => taps = 0, 3000);
         });
-
     </script>
 </body>
 </html>
