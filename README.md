@@ -2,211 +2,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jinnah School & Degree College Astore | Smart Portal</title>
+    <title>Jinnah School & Degree College Astore | Official Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        * { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+        .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .hero-bg { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); }
+        .card-modern { background: white; border-radius: 20px; transition: 0.3s; border: 1px solid #f1f5f9; }
+        .card-modern:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .hidden { display: none !important; }
         
-        body { font-family: 'Poppins', sans-serif; background-color: #f1f5f9; scroll-behavior: smooth; }
-
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .hero-section {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-            min-height: 80vh;
-            display: flex;
-            align-items: center;
-        }
-
-        .animate-marquee {
-            display: inline-block;
-            white-space: nowrap;
-            animation: marquee 30s linear infinite;
-        }
-
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        .card-modern {
-            background: white;
-            border-radius: 24px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid #e2e8f0;
-        }
-
-        .card-modern:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-        }
-
-        .fab-whatsapp {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #25D366;
-            width: 65px;
-            height: 65px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.4);
-            color: white;
-            font-size: 32px;
-            z-index: 1000;
-            cursor: pointer;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        /* Hidden Admin Icon Style */
-        #secretTap {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
+        /* Floating WhatsApp */
+        .fab-whatsapp { position: fixed; bottom: 30px; right: 30px; background: #25D366; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 30px; z-index: 1000; box-shadow: 0 10px 20px rgba(37,211,102,0.3); cursor: pointer; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900">
 
-    <div class="bg-blue-600 py-2 overflow-hidden border-b border-blue-400">
-        <div class="animate-marquee text-white font-medium">
-            <span class="mx-10"><i class="fas fa-bullhorn mr-2"></i> Admissions Open for 2026!</span>
-            <span class="mx-10"><i class="fas fa-trophy mr-2"></i> Top Position in Astore Board Exams!</span>
-            <span class="mx-10"><i class="fas fa-calendar-check mr-2"></i> Parent-Teacher Meeting on Saturday.</span>
+    <div class="bg-blue-700 text-white py-2 overflow-hidden whitespace-nowrap">
+        <div class="inline-block animate-pulse px-4 font-bold uppercase text-[10px] tracking-widest">
+            Admissions 2026 Open • Jinnah College Astore tops GB Board • Digital Library Access Available Now •
         </div>
     </div>
 
-    <nav class="sticky top-0 z-50 glass-nav p-4">
+    <nav class="sticky top-0 z-[1000] glass-nav p-4">
         <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3">
                 <div class="bg-blue-900 text-white p-2 rounded-lg font-bold">JS</div>
-                <h1 class="text-xl font-bold text-blue-950 uppercase tracking-tighter">Jinnah College <span class="text-blue-600 block text-xs tracking-widest uppercase">Astore Valley</span></h1>
+                <h1 class="font-black text-xl tracking-tighter text-blue-950">JINNAH <span class="text-blue-600 block text-[10px] tracking-[4px] uppercase">College Astore</span></h1>
             </div>
-            <div class="hidden md:flex space-x-8 font-semibold text-gray-700">
-                <a href="#" class="hover:text-blue-600">Overview</a>
-                <a href="#academics" class="hover:text-blue-600">Academics</a>
-                <a href="#portal" class="hover:text-blue-600">Student Portal</a>
-                <a href="#contact" class="hover:text-blue-600">Contact</a>
+            <div id="user-info" class="hidden flex items-center gap-4">
+                <span id="user-name" class="text-xs font-bold uppercase"></span>
+                <button onclick="handleLogout()" class="text-red-500 text-xs font-bold uppercase underline">Logout</button>
             </div>
-            <button class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 shadow-md">Apply 2026</button>
+            <button id="login-btn" onclick="loginWithGoogle()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-bold uppercase shadow-lg shadow-blue-200">Google Login</button>
         </div>
     </nav>
 
-    <header class="hero-section text-white px-6">
-        <div class="container mx-auto grid md:grid-cols-2 gap-10 items-center">
-            <div class="space-y-6">
-                <span class="bg-blue-500/20 text-blue-300 px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest border border-blue-500/30">Since 1998</span>
-                <h2 class="text-5xl md:text-7xl font-bold leading-tight">Elevate Your <span class="text-blue-400">Future</span> in Astore</h2>
-                <p class="text-lg opacity-80 max-w-md">The most prestigious educational institute in Gilgit-Baltistan, providing excellence in Science, Arts, and Leadership.</p>
-                <div class="flex gap-4">
-                    <button class="bg-white text-blue-950 px-8 py-4 rounded-2xl font-bold hover:bg-blue-50 transition shadow-xl">Explore Courses</button>
-                    <button class="border-2 border-white/30 px-8 py-4 rounded-2xl font-bold hover:bg-white/10 transition">Virtual Tour</button>
-                </div>
-            </div>
-            <div class="hidden md:block">
-                <div class="bg-blue-800/30 w-full h-[400px] rounded-[40px] border border-white/10 backdrop-blur-sm flex items-center justify-center">
-                    <i class="fas fa-university text-9xl text-white/20"></i>
-                </div>
+    <header class="hero-bg text-white py-24 px-6 text-center relative overflow-hidden">
+        <div class="container mx-auto relative z-10">
+            <span class="bg-white/10 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/20">Astore Valley, GB</span>
+            <h2 class="text-5xl md:text-7xl font-black mt-6 mb-8 leading-tight">Shaping Future <br> <span class="text-blue-400">Leaders</span></h2>
+            <p class="text-slate-300 max-w-xl mx-auto mb-10 text-sm font-medium">The most professional educational institute in the region, now fully digital for students and parents.</p>
+            <div class="flex justify-center gap-4">
+                <a href="#portal" class="bg-white text-blue-950 px-8 py-4 rounded-2xl font-bold">Student Portal</a>
+                <a href="#about" class="border-2 border-white/20 px-8 py-4 rounded-2xl font-bold">Our Vision</a>
             </div>
         </div>
     </header>
 
-    <section class="py-12 -mt-10 relative z-10">
-        <div class="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-white p-6 rounded-3xl shadow-lg text-center border border-gray-100">
-                <h3 class="text-3xl font-bold text-blue-600">2.5k+</h3>
-                <p class="text-sm font-semibold text-gray-500">Graduates</p>
-            </div>
-            <div class="bg-white p-6 rounded-3xl shadow-lg text-center border border-gray-100">
-                <h3 class="text-3xl font-bold text-blue-600">50+</h3>
-                <p class="text-sm font-semibold text-gray-500">Gold Medals</p>
-            </div>
-            <div class="bg-white p-6 rounded-3xl shadow-lg text-center border border-gray-100">
-                <h3 class="text-3xl font-bold text-blue-600">100%</h3>
-                <p class="text-sm font-semibold text-gray-500">Secure Campus</p>
-            </div>
-            <div class="bg-white p-6 rounded-3xl shadow-lg text-center border border-gray-100">
-                <h3 class="text-3xl font-bold text-blue-600">A+</h3>
-                <p class="text-sm font-semibold text-gray-500">Board Grade</p>
-            </div>
+    <section id="about" class="py-20 container mx-auto px-6 grid md:grid-cols-3 gap-8">
+        <div class="card-modern p-10 border-b-4 border-blue-600">
+            <i class="fas fa-microscope text-3xl text-blue-600 mb-6"></i>
+            <h3 class="font-extrabold text-xl mb-4 uppercase">Science Excellence</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Advanced laboratories for physics and biology experiments tailored for Astore Board exams.</p>
+        </div>
+        <div class="card-modern p-10 border-b-4 border-green-600">
+            <i class="fas fa-user-graduate text-3xl text-green-600 mb-6"></i>
+            <h3 class="font-extrabold text-xl mb-4 uppercase">Scholarships</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Merit-based financial aid for brilliant students of Gilgit Baltistan to pursue higher dreams.</p>
+        </div>
+        <div class="card-modern p-10 border-b-4 border-purple-600">
+            <i class="fas fa-bus text-3xl text-purple-600 mb-6"></i>
+            <h3 class="font-extrabold text-xl mb-4 uppercase">Secure Transport</h3>
+            <p class="text-slate-500 text-sm leading-relaxed">Safe and professional transport network covering every sector of Astore Valley.</p>
         </div>
     </section>
 
-    <section id="academics" class="py-24 container mx-auto px-6">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 mb-4">Why Choose Jinnah College?</h2>
-            <div class="h-1 w-20 bg-blue-600 mx-auto rounded-full"></div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="card-modern p-10">
-                <div class="bg-blue-100 w-16 h-16 rounded-2xl flex items-center justify-center text-blue-600 text-2xl mb-6">
-                    <i class="fas fa-microscope"></i>
+    <section id="portal" class="bg-blue-950 py-24 px-6">
+        <div class="max-w-4xl mx-auto bg-white rounded-[32px] overflow-hidden shadow-2xl flex flex-col md:flex-row">
+            <div class="md:w-1/3 bg-blue-900 text-white p-12">
+                <h3 class="text-2xl font-black mb-4 uppercase leading-tight">Digital <br>Transcript</h3>
+                <p class="text-blue-300 text-xs font-bold uppercase mb-8">Access 2026 Results</p>
+                <div class="w-20 h-20 bg-blue-800 rounded-2xl flex items-center justify-center border border-white/10">
+                    <i class="fas fa-file-invoice text-3xl text-blue-400"></i>
                 </div>
-                <h3 class="text-2xl font-bold mb-4">Modern Science Labs</h3>
-                <p class="text-gray-600 leading-relaxed">Fully equipped physics, chemistry, and biology labs following international standards.</p>
             </div>
-            <div class="card-modern p-10">
-                <div class="bg-green-100 w-16 h-16 rounded-2xl flex items-center justify-center text-green-600 text-2xl mb-6">
-                    <i class="fas fa-laptop-code"></i>
-                </div>
-                <h3 class="text-2xl font-bold mb-4">IT Excellence</h3>
-                <p class="text-gray-600 leading-relaxed">Dedicated computer suites with high-speed internet for digital learning and programming.</p>
-            </div>
-            <div class="card-modern p-10">
-                <div class="bg-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center text-purple-600 text-2xl mb-6">
-                    <i class="fas fa-bus"></i>
-                </div>
-                <h3 class="text-2xl font-bold mb-4">Safe Transport</h3>
-                <p class="text-gray-600 leading-relaxed">A fleet of well-maintained buses covering every corner of the Astore valley for students.</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="portal" class="bg-blue-950 py-24 px-6 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-800 rounded-full blur-3xl opacity-20 -mr-32 -mt-32"></div>
-        
-        <div class="max-w-5xl mx-auto bg-white/5 backdrop-blur-md rounded-[40px] border border-white/10 p-8 md:p-16">
-            <div class="grid md:grid-cols-2 gap-16 items-center">
-                <div class="text-white">
-                    <h2 class="text-4xl font-bold mb-6">E-Result & Portal</h2>
-                    <p class="text-blue-200 mb-8 leading-relaxed">Parents can now check their children's academic performance, attendance, and fee history online with one click.</p>
-                    <ul class="space-y-4">
-                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-green-400"></i> Instant Score Updates</li>
-                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-green-400"></i> Fee Status Tracking</li>
-                        <li class="flex items-center gap-3"><i class="fas fa-check-circle text-green-400"></i> Online Assignments</li>
-                    </ul>
-                </div>
-                <div class="bg-white p-8 rounded-3xl shadow-2xl">
-                    <h4 class="text-blue-950 font-bold text-xl mb-6">Access Student Profile</h4>
-                    <form onsubmit="event.preventDefault(); alert('Searching database for results...')">
-                        <div class="mb-4">
-                            <label class="block text-sm font-bold text-gray-500 mb-2 uppercase">Registration No.</label>
-                            <input type="text" placeholder="e.g. JAC-2026-001" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                        </div>
-                        <button class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2">
-                            <i class="fas fa-search"></i> Check Results
-                        </button>
-                    </form>
+            <div class="md:w-2/3 p-12">
+                <div class="space-y-6">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Student Registration No.</label>
+                        <input id="reg-no" type="text" placeholder="e.g. JS-2026-101" class="w-full bg-slate-50 p-4 rounded-xl border border-slate-100 outline-none focus:border-blue-600 font-bold">
+                    </div>
+                    <button onclick="checkResult()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-700 transition">Fetch Official Result</button>
+                    <div id="result-display" class="hidden mt-6 p-4 bg-green-50 rounded-xl border border-green-100">
+                        <p class="text-xs font-bold text-green-700 uppercase">Status: PASSED (Grade A+)</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <div class="fixed bottom-4 left-4 z-50">
-        <button id="secretTap" class="opacity-10 hover:opacity-100 transform hover:scale-110">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_Drive_icon_%282020%29.svg/1200px-Google_Drive_icon_%282020%29.svg.png" class="w-10 h-10" alt="Drive">
+    <div class="fixed bottom-4 left-4 z-[5000]">
+        <button id="secretTap" class="opacity-10 hover:opacity-100 grayscale hover:grayscale-0 transition-all">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_Drive_icon_%282020%29.svg/1200px-Google_Drive_icon_%282020%29.svg.png" class="w-10 h-10">
         </button>
     </div>
 
@@ -214,60 +108,84 @@
         <i class="fab fa-whatsapp"></i>
     </div>
 
-    <footer id="contact" class="bg-white pt-20 pb-10 px-6 border-t border-gray-100">
-        <div class="container mx-auto grid md:grid-cols-3 gap-12 mb-16">
-            <div class="space-y-4">
-                <h4 class="text-2xl font-bold text-blue-900">Jinnah College</h4>
-                <p class="text-gray-500">Leading the educational revolution in Astore since 1998. Join us to shape your destiny.</p>
-                <div class="flex gap-4 text-2xl text-gray-400">
-                    <i class="fab fa-facebook hover:text-blue-600 cursor-pointer transition"></i>
-                    <i class="fab fa-instagram hover:text-pink-500 cursor-pointer transition"></i>
-                    <i class="fab fa-twitter hover:text-blue-400 cursor-pointer transition"></i>
-                </div>
-            </div>
-            <div>
-                <h4 class="font-bold text-gray-900 mb-6 uppercase tracking-widest text-sm">Quick Links</h4>
-                <ul class="space-y-3 text-gray-600">
-                    <li class="hover:text-blue-600 cursor-pointer">Admission Forms</li>
-                    <li class="hover:text-blue-600 cursor-pointer">Academic Calendar</li>
-                    <li class="hover:text-blue-600 cursor-pointer">Scholarship Details</li>
-                    <li class="hover:text-blue-600 cursor-pointer">Faculty Profiles</li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-bold text-gray-900 mb-6 uppercase tracking-widest text-sm">Office Info</h4>
-                <div class="space-y-4 text-gray-600 text-sm">
-                    <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-blue-600"></i> Main Road, Astore, Gilgit-Baltistan</p>
-                    <p class="flex items-center gap-3"><i class="fas fa-phone-alt text-blue-600"></i> +92 5817-XXXXXX</p>
-                    <p class="flex items-center gap-3"><i class="fas fa-envelope text-blue-600"></i> contact@jinnahastore.edu.pk</p>
-                </div>
-            </div>
-        </div>
-        <div class="text-center text-gray-400 text-sm border-t border-gray-100 pt-8">
-            &copy; 2026 Jinnah School & Degree College Astore. All rights reserved.
-        </div>
+    <footer class="bg-white border-t border-slate-100 py-12 px-6 text-center">
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[4px] mb-4">Official Jinnah College Portal 2026</p>
+        <p class="text-slate-500 text-xs">Main Road Astore, Gilgit-Baltistan</p>
     </footer>
 
     <script>
-        // Secret Admin Logic (5 Taps on Drive Logo)
-        let tapCount = 0;
-        const secretBtn = document.getElementById('secretTap');
-        
-        secretBtn.addEventListener('click', () => {
-            tapCount++;
-            if (tapCount === 5) {
-                const key = prompt("⚠️ Secure Access Required. Enter Admin Key:");
-                if (key === "gb46") {
-                    alert("✅ Access Granted! Redirecting to College Management System...");
-                    // window.location.href = "admin_panel.html";
+        // FIREBASE CONFIG (Vibes Project)
+        const fbConfig = {
+            apiKey: "AIzaSyB2etNdujWulCIa6-bk0P6yaxYPgNlzzto",
+            authDomain: "vibes-643ec.firebaseapp.com",
+            databaseURL: "https://vibes-643ec-default-rtdb.firebaseio.com",
+            projectId: "vibes-643ec",
+            storageBucket: "vibes-643ec.firebasestorage.app",
+            messagingSenderId: "1073588694472",
+            appId: "1:1073588694472:web:7a87ed21652f303e3164fd"
+        };
+        firebase.initializeApp(fbConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        // AUTH LOGIC
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                document.getElementById('login-btn').classList.add('hidden');
+                document.getElementById('user-info').classList.remove('hidden');
+                document.getElementById('user-name').innerText = user.displayName;
+            } else {
+                document.getElementById('login-btn').classList.remove('hidden');
+                document.getElementById('user-info').classList.add('hidden');
+            }
+        });
+
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider);
+        }
+
+        function handleLogout() {
+            auth.signOut().then(() => location.reload());
+        }
+
+        // RESULT CHECKER LOGIC
+        function checkResult() {
+            const reg = document.getElementById('reg-no').value;
+            if(!reg) return alert("Please enter Registration Number");
+            
+            // Database se result fetch karna
+            db.ref('results/' + reg).once('value', snap => {
+                const data = snap.val();
+                if(data) {
+                    document.getElementById('result-display').classList.remove('hidden');
+                    document.getElementById('result-display').innerHTML = `
+                        <p class="text-xs font-bold text-blue-700 uppercase">Student: ${data.name}</p>
+                        <p class="text-lg font-black text-slate-900 mt-2">Grade: ${data.grade}</p>
+                    `;
                 } else {
-                    alert("❌ Invalid Access Key!");
-                    tapCount = 0;
+                    alert("Result not found in database.");
+                }
+            });
+        }
+
+        // SECRET ADMIN SYSTEM (5 TAPS ON LOGO)
+        let taps = 0;
+        document.getElementById('secretTap').addEventListener('click', () => {
+            taps++;
+            if(taps === 5) {
+                const pass = prompt("Enter Administrative Key:");
+                if(pass === "gb46") {
+                    alert("Welcome Principal! Accessing Admin Controls...");
+                    // Yahan aap admin panel khol sakte hain
+                } else {
+                    alert("Invalid Key!");
+                    taps = 0;
                 }
             }
-            // Reset tap count if not finished within 3 seconds
-            setTimeout(() => { tapCount = 0; }, 3000);
+            setTimeout(() => taps = 0, 3000); // 3 seconds mein reset
         });
+
     </script>
 </body>
 </html>
