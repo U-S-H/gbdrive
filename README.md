@@ -17,7 +17,9 @@
         .page { display: none; animation: slideIn 0.4s ease-out; }
         .active-page { display: block; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        #wheel { width: 300px; height: 300px; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); border-radius: 50%; }
+        #wheel-container { position: relative; width: 300px; height: 300px; margin: 0 auto; }
+        #wheel { width: 100%; height: 100%; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); border-radius: 50%; }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #ef4444; z-index: 20; }
     </style>
 </head>
 <body class="min-h-screen pb-32">
@@ -43,9 +45,9 @@
 
         <div id="p-spin" class="page text-center">
             <h2 class="text-2xl font-black mb-10">Lucky Terminal</h2>
-            <div class="relative inline-block mb-12">
-                <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-10 bg-red-600 z-10" style="clip-path: polygon(50% 100%, 0 0, 100% 0);"></div>
-                <img id="wheel" src="IMG_20260513_123757.jpg" alt="Lucky Wheel">
+            <div id="wheel-container" class="mb-12">
+                <div class="pointer"></div>
+                <img id="wheel" src="WA_1778657843473.jpeg" alt="Wheel">
             </div>
             <button onclick="handleSpin()" class="w-full bg-blue-600 text-white py-5 rounded-3xl font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all">Spin Protocol</button>
         </div>
@@ -72,6 +74,7 @@
 
         let userObj = null;
         let isSpinning = false;
+        let currentRotation = 0;
 
         async function loginWithGoogle() {
             const res = await auth.signInWithPopup(provider);
@@ -105,22 +108,34 @@
         async function handleSpin() {
             if (isSpinning) return;
             isSpinning = true;
+
+            // Rewards matching the segments in your image
+            const rewards = [
+                { label: "Rs 5", value: 5, angle: 0 },
+                { label: "Rs 10", value: 10, angle: 300 },
+                { label: "Rs 50", value: 50, angle: 240 },
+                { label: "Rs 2", value: 2, angle: 180 },
+                { label: "Try Again", value: 0, angle: 120 },
+                { label: "Try Again", value: 0, angle: 60 }
+            ];
+
+            const prize = rewards[Math.floor(Math.random() * rewards.length)];
+            const extraSpins = (Math.floor(Math.random() * 5) + 5) * 360; 
+            currentRotation += extraSpins + prize.angle - (currentRotation % 360);
+
             const wheel = document.getElementById('wheel');
-            const deg = Math.floor(Math.random() * 3600) + 1800; 
-            wheel.style.transform = `rotate(${deg}deg)`;
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
 
             setTimeout(async () => {
                 isSpinning = false;
-                // BONUS LOGIC BASED ON YOUR IMAGE: [Rs 5, Rs 10, Rs 50, Rs 2, 0, 0]
-                const wins = [5, 10, 50, 2, 0, 0];
-                const win = wins[Math.floor(Math.random() * wins.length)];
-                
-                await db.collection("users").doc(userObj.name).update({
-                    balance: (userObj.balance || 0) + win
-                });
-
-                alert(win > 0 ? `Congrats sweetie! ₨ ${win} Jeet Liye!` : "Oh ho! Try Again!");
-                wheel.style.transform = "rotate(0deg)";
+                if(prize.value > 0) {
+                    await db.collection("users").doc(userObj.name).update({
+                        balance: (userObj.balance || 0) + prize.value
+                    });
+                    alert(`Mubarak ho sweetie! Aapne ${prize.label} jeet liye!`);
+                } else {
+                    alert("Oh ho! Try Again!");
+                }
             }, 4000);
         }
 
