@@ -11,13 +11,13 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.3s; overflow-x: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); overflow-x: hidden; }
         .glass { background: var(--card); border: 1px solid rgba(0,0,0,0.04); border-radius: 30px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
         .hero-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 40px; padding: 2rem; color: white; margin-bottom: 2rem; }
         .page { display: none; animation: slideIn 0.4s ease-out; }
         .active-page { display: block; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        #wheel { width: 280px; height: 280px; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); cursor: pointer; border-radius: 50%; }
+        #wheel { width: 300px; height: 300px; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); border-radius: 50%; }
     </style>
 </head>
 <body class="min-h-screen pb-32">
@@ -27,7 +27,7 @@
             <div class="w-20 h-20 bg-blue-600 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-2xl rotate-3">
                 <i class="fa-solid fa-vault text-white text-3xl"></i>
             </div>
-            <h1 class="text-4xl font-black italic">VESTIFY ELITE</h1>
+            <h1 class="text-4xl font-black italic tracking-tighter uppercase">VESTIFY ELITE</h1>
             <button onclick="loginWithGoogle()" class="w-full mt-10 bg-[#0f172a] text-white py-5 rounded-3xl font-bold active:scale-95 transition-all">Google Sync</button>
         </div>
     </section>
@@ -35,7 +35,7 @@
     <main id="app-ui" class="hidden px-6 pt-6">
         <div id="p-home" class="page active-page">
             <div class="hero-card shadow-2xl">
-                <p class="text-[10px] opacity-50 uppercase mb-1 text-center">Portfolio Balance</p>
+                <p class="text-[10px] opacity-50 uppercase text-center mb-1">Portfolio Balance</p>
                 <h2 class="text-4xl font-extrabold text-center mb-10" id="v-bal">₨ 0.00</h2>
             </div>
             <div id="plans-list" class="space-y-4"></div>
@@ -111,11 +111,15 @@
 
             setTimeout(async () => {
                 isSpinning = false;
-                // [Try Again, Rs 5, Rs 10, Rs 50, Rs 2, Try Again]
-                const wins = [0, 5, 10, 50, 2, 0];
+                // BONUS LOGIC BASED ON YOUR IMAGE: [Rs 5, Rs 10, Rs 50, Rs 2, 0, 0]
+                const wins = [5, 10, 50, 2, 0, 0];
                 const win = wins[Math.floor(Math.random() * wins.length)];
-                await db.collection("users").doc(userObj.name).update({ balance: (userObj.balance || 0) + win });
-                alert(win > 0 ? `Congrats! Jeet gaye ₨ ${win}` : "Try Again!");
+                
+                await db.collection("users").doc(userObj.name).update({
+                    balance: (userObj.balance || 0) + win
+                });
+
+                alert(win > 0 ? `Congrats sweetie! ₨ ${win} Jeet Liye!` : "Oh ho! Try Again!");
                 wheel.style.transform = "rotate(0deg)";
             }, 4000);
         }
