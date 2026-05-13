@@ -7,7 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>Vestify Pro | Elite Investment Terminal</title>
+    <title>Vestify Pro Elite</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
         :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; }
@@ -20,6 +20,8 @@
         .active-page { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         #wheel { width: 260px; height: 260px; border-radius: 50%; border: 8px solid #2563eb; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
+        .method-card { border: 2px solid transparent; transition: 0.2s; cursor: pointer; }
+        .method-card.selected { border-color: #2563eb; background: #eff6ff; }
     </style>
 </head>
 <body class="min-h-screen pb-32">
@@ -40,66 +42,74 @@
     <header class="px-6 py-6 flex justify-between items-center sticky top-0 z-[1000] bg-inherit/80 backdrop-blur-md">
         <span class="font-black text-2xl tracking-tighter text-blue-600 italic">V.</span>
         <div class="flex items-center gap-4">
-            <button onclick="toggleTheme()" class="text-slate-400"><i class="fa-solid fa-circle-half-stroke"></i></button>
-            <div id="rank-badge" class="px-3 py-1 bg-blue-50 text-blue-600 text-[9px] font-black rounded-lg uppercase">Standard</div>
+            <button onclick="toggleTheme()" class="text-slate-400"><i class="fa-solid fa-circle-half-stroke text-xl"></i></button>
+            <div id="rank-badge" class="px-3 py-1 bg-blue-50 text-blue-600 text-[9px] font-black rounded-lg uppercase tracking-tighter">Standard Node</div>
         </div>
     </header>
 
     <main id="app-ui" class="hidden px-6">
         
         <div id="p-home" class="page active-page">
-            <div class="hero-card p-8 text-white mb-8 shadow-2xl">
-                <p class="text-[10px] font-bold opacity-50 uppercase tracking-widest">Available Assets</p>
+            <div class="hero-card p-8 text-white mb-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
+                <p class="text-[10px] font-bold opacity-50 uppercase tracking-widest mb-1">Total Assets</p>
                 <h2 class="text-4xl font-extrabold tracking-tighter mb-10 mono" id="v-bal">₨ 0.00</h2>
                 <div class="grid grid-cols-2 gap-4 pt-6 border-t border-white/5">
-                    <div><p class="text-[8px] opacity-40 uppercase font-black">Live Yield</p><p id="v-profit" class="text-lg font-bold text-emerald-400 mono">₨ 0.0000</p></div>
+                    <div><p class="text-[8px] opacity-40 uppercase font-black">Live Profit</p><p id="v-profit" class="text-sm font-bold text-emerald-400 mono">₨ 0.000000</p></div>
                     <div class="text-right"><button onclick="claimBonus()" class="text-[10px] font-black text-blue-300 underline uppercase">Daily +₨ 5</button></div>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-10">
-                <button onclick="changePage('deposit')" class="glass p-6 flex flex-col items-center gap-3">
-                    <i class="fa-solid fa-plus-circle text-blue-600 text-xl"></i>
+                <button onclick="changePage('deposit')" class="glass p-6 flex flex-col items-center gap-3 active:scale-95 transition-all">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600"><i class="fa-solid fa-arrow-down text-lg"></i></div>
                     <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">Deposit</span>
                 </button>
-                <button onclick="changePage('withdraw')" class="glass p-6 flex flex-col items-center gap-3">
-                    <i class="fa-solid fa-wallet text-slate-400 text-xl"></i>
+                <button onclick="changePage('withdraw')" class="glass p-6 flex flex-col items-center gap-3 active:scale-95 transition-all">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500"><i class="fa-solid fa-arrow-up-right-from-square text-lg"></i></div>
                     <span class="text-[9px] font-black uppercase tracking-widest text-slate-500">Withdraw</span>
                 </button>
             </div>
 
-            <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6 text-center">Active Investment Nodes</h3>
+            <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-6">Investment Packages</h3>
             <div id="plans-list" class="space-y-4"></div>
         </div>
 
         <div id="p-spin" class="page text-center pt-4">
-            <h2 class="text-3xl font-black mb-10">Lucky Terminal</h2>
-            <div class="relative inline-block">
-                <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-red-500 z-10" style="clip-path: polygon(50% 100%, 0 0, 100% 0);"></div>
+            <h2 class="text-2xl font-black mb-10">Lucky Terminal</h2>
+            <div class="relative inline-block mb-12">
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-10 bg-red-500 z-10" style="clip-path: polygon(50% 100%, 0 0, 100% 0);"></div>
                 <img id="wheel" src="https://i.ibb.co/v4S69YV/lucky-wheel.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/6119/6119533.png'">
             </div>
-            <button onclick="handleSpin()" class="w-full mt-12 bg-blue-600 text-white py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl">Initiate Spin</button>
+            <button onclick="handleSpin()" id="spin-btn" class="w-full bg-blue-600 text-white py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all">Initiate Protocol</button>
         </div>
 
         <div id="p-deposit" class="page">
-            <h2 class="text-2xl font-black mb-6">Deposit Assets</h2>
+            <h2 class="text-2xl font-black mb-6">Add Capital</h2>
             <div class="glass p-8">
-                <p class="text-xs font-bold text-slate-400 mb-4 uppercase">Select Gateway</p>
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <button class="p-4 border-2 border-blue-600 rounded-2xl text-[10px] font-black uppercase">Easypaisa</button>
-                    <button class="p-4 border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase opacity-40">JazzCash</button>
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div onclick="selectDep('Easypaisa')" class="method-card glass p-4 text-center selected" id="m-Easypaisa">
+                        <img src="https://i.ibb.co/V9z0jWw/easypaisa.png" class="h-8 mx-auto mb-2" onerror="this.style.display='none'">
+                        <p class="text-[8px] font-black uppercase">Easypaisa</p>
+                    </div>
+                    <div onclick="selectDep('JazzCash')" class="method-card glass p-4 text-center" id="m-JazzCash">
+                        <img src="https://i.ibb.co/68vM839/jazzcash.png" class="h-8 mx-auto mb-2" onerror="this.style.display='none'">
+                        <p class="text-[8px] font-black uppercase">JazzCash</p>
+                    </div>
                 </div>
-                <input type="number" id="dep-amt" placeholder="Amount" class="w-full p-5 bg-slate-50 rounded-2xl mb-4 font-bold outline-none">
-                <button onclick="alert('Sent to Admin for Approval!')" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-bold">Submit</button>
+                <p class="text-[10px] font-bold text-slate-400 mb-2 uppercase">Account: 0300 1234567</p>
+                <input type="number" id="dep-amt" placeholder="Amount (₨)" class="w-full p-5 bg-slate-50 rounded-2xl mb-4 font-bold outline-none">
+                <input type="text" id="dep-trx" placeholder="Transaction ID (TRX)" class="w-full p-5 bg-slate-50 rounded-2xl mb-6 font-bold outline-none">
+                <button onclick="submitRequest('Deposit')" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Submit Request</button>
             </div>
         </div>
 
         <div id="p-withdraw" class="page">
-            <h2 class="text-2xl font-black mb-6">Withdraw Funds</h2>
+            <h2 class="text-2xl font-black mb-6">Request Payout</h2>
             <div class="glass p-8">
-                <input type="number" id="wd-amt" placeholder="Amount" class="w-full p-5 bg-slate-50 rounded-2xl mb-4 font-bold outline-none">
-                <input type="text" placeholder="Account Number" class="w-full p-5 bg-slate-50 rounded-2xl mb-6 font-bold outline-none">
-                <button onclick="alert('Withdrawal Request Placed!')" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold">Confirm Payout</button>
+                <input type="number" id="wd-amt" placeholder="Payout Amount" class="w-full p-5 bg-slate-50 rounded-2xl mb-4 font-bold outline-none">
+                <input type="text" id="wd-acc" placeholder="Account Number" class="w-full p-5 bg-slate-50 rounded-2xl mb-6 font-bold outline-none">
+                <button onclick="submitRequest('Withdraw')" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Confirm Transfer</button>
             </div>
         </div>
     </main>
@@ -126,6 +136,7 @@
 
         let userObj = null;
         let isSpinning = false;
+        let selectedMethod = 'Easypaisa';
         const spinTick = new Audio('https://www.soundjay.com/buttons/sounds/button-20.mp3');
 
         async function loginWithGoogle() {
@@ -154,12 +165,16 @@
             });
         }
 
+        // Live Profit Ticker - Har second balance update karega
         function startTicker() {
             if(userObj.tierROI > 0) {
-                setInterval(() => {
-                    const ps = (userObj.balance * (userObj.tierROI / 100)) / 86400;
-                    userObj.profit = (userObj.profit || 0) + ps;
+                const interval = setInterval(async () => {
+                    const daily = userObj.balance * (userObj.tierROI / 100);
+                    const perSec = daily / 86400;
+                    userObj.profit = (userObj.profit || 0) + perSec;
+                    userObj.balance += perSec;
                     document.getElementById('v-profit').innerText = "₨ " + userObj.profit.toFixed(6);
+                    document.getElementById('v-bal').innerText = "₨ " + userObj.balance.toLocaleString();
                 }, 1000);
             }
         }
@@ -168,7 +183,7 @@
             const now = Date.now();
             if (now - userObj.lastBonus < 86400000) return alert("Sweetie, 24h wait karein!");
             await db.collection("users").doc(userObj.name).update({ balance: userObj.balance + 5, lastBonus: now });
-            alert("Daily Bonus Claimed!");
+            alert("₨ 5 Added to Vault!");
         }
 
         async function handleSpin() {
@@ -176,7 +191,7 @@
             const now = Date.now();
             let isPaid = false;
             if (now - userObj.lastSpin < 86400000) {
-                if (userObj.balance < 20) return alert("Paisa kam hai!");
+                if (userObj.balance < 20) return alert("Low funds for paid spin!");
                 if (!confirm("Aaj ka free spin ho chuka. ₨ 20 pay karein?")) return;
                 isPaid = true;
             }
@@ -185,43 +200,55 @@
             const wheel = document.getElementById('wheel');
             const deg = Math.floor(Math.random() * 3600) + 1800;
             wheel.style.transform = `rotate(${deg}deg)`;
-            const t = setInterval(() => spinTick.play(), 200);
+            const t = setInterval(() => spinTick.play(), 250);
             setTimeout(async () => {
                 clearInterval(t);
                 isSpinning = false;
-                const wins = [0, 5, 10, 50, 2, 0];
+                const wins = [0, 5, 10, 50, 2, 100];
                 const win = wins[Math.floor(Math.random() * wins.length)];
                 let up = { balance: userObj.balance + win };
                 if(!isPaid) up.lastSpin = now;
                 await db.collection("users").doc(userObj.name).update(up);
-                alert(`Reward: ₨ ${win}`);
+                alert(`You Won ₨ ${win}!`);
                 wheel.style.transform = "rotate(0deg)";
             }, 4000);
         }
 
+        function selectDep(m) {
+            selectedMethod = m;
+            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('m-'+m).classList.add('selected');
+        }
+
+        async function submitRequest(type) {
+            const amt = type === 'Deposit' ? document.getElementById('dep-amt').value : document.getElementById('wd-amt').value;
+            if(!amt || amt < 100) return alert("Minimum 100 required!");
+            alert("Request sent to Admin. Status: Pending");
+            changePage('home');
+        }
+
         function renderPlans() {
             const ps = [
-                { n: "Standard-1", p: 500, r: 3 }, { n: "Standard-2", p: 1000, r: 3.5 },
-                { n: "Silver-1", p: 2500, r: 4 }, { n: "Silver-2", p: 5000, r: 4.5 },
-                { n: "Gold-1", p: 10000, r: 5 }, { n: "Gold-2", p: 20000, r: 5.5 },
-                { n: "Platinum-1", p: 50000, r: 6 }, { n: "Platinum-2", p: 100000, r: 7 },
-                { n: "Diamond-Elite", p: 250000, r: 8.5 }, { n: "Vestify-King", p: 500000, r: 10 }
+                { n: "Nano Node", p: 500, r: 3 }, { n: "Micro Node", p: 1000, r: 3.5 },
+                { n: "Mega Node", p: 5000, r: 4.5 }, { n: "Giga Node", p: 10000, r: 5 },
+                { n: "Tera Node", p: 50000, r: 6.5 }, { n: "Peta Node", p: 100000, r: 8 },
+                { n: "Elite Node", p: 500000, r: 12 }
             ];
             document.getElementById('plans-list').innerHTML = ps.map(p => `
-                <div class="glass p-5 flex justify-between items-center">
-                    <div><h4 class="font-bold text-xs">${p.n}</h4><p class="text-[8px] text-blue-600 font-black">${p.r}% DAILY</p></div>
+                <div class="glass p-6 flex justify-between items-center">
+                    <div><h4 class="font-bold text-xs uppercase">${p.n}</h4><p class="text-[9px] text-blue-600 font-black">${p.r}% DAILY</p></div>
                     <div class="text-right">
                         <p class="text-xs font-black mb-2">₨ ${p.p.toLocaleString()}</p>
-                        <button onclick="buyPlan(${p.p}, ${p.r})" class="px-4 py-2 bg-slate-900 text-white text-[8px] font-bold rounded-lg uppercase tracking-widest">Activate</button>
+                        <button onclick="buyPlan(${p.p}, ${p.r})" class="px-4 py-2 bg-slate-900 text-white text-[8px] font-bold rounded-lg uppercase">Activate</button>
                     </div>
                 </div>
             `).join('');
         }
 
         async function buyPlan(p, r) {
-            if(userObj.balance < p) return alert("Low Balance!");
+            if(userObj.balance < p) return alert("Paisa kam hai sweetie!");
             await db.collection("users").doc(userObj.name).update({ balance: userObj.balance - p, tierROI: r, profit: 0 });
-            alert("Plan Activated!");
+            alert("Protocol Activated! Your profit is now live.");
         }
 
         function changePage(p) {
