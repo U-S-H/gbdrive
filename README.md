@@ -14,11 +14,11 @@
         .dark-mode { --bg: #0b0f1a; --card: #161b2c; --text: #f1f5f9; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.3s; overflow-x: hidden; }
         .glass { background: var(--card); border: 1px solid rgba(0,0,0,0.04); border-radius: 30px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
-        .hero-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 40px; position: relative; overflow: hidden; padding: 2rem; color: white; margin-bottom: 2rem; }
+        .hero-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 40px; padding: 2rem; color: white; margin-bottom: 2rem; }
         .page { display: none; animation: slideIn 0.4s ease-out; }
         .active-page { display: block; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        #wheel { width: 280px; height: 280px; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); cursor: pointer; }
+        #wheel { width: 280px; height: 280px; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); cursor: pointer; border-radius: 50%; border: 8px solid #2563eb; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body class="min-h-screen pb-32">
@@ -29,8 +29,7 @@
                 <i class="fa-solid fa-vault text-white text-3xl"></i>
             </div>
             <h1 class="text-4xl font-black italic tracking-tighter">VESTIFY ELITE</h1>
-            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.4em] mt-2 mb-16">Institutional Terminal</p>
-            <button onclick="loginWithGoogle()" class="w-full bg-[#0f172a] text-white py-5 rounded-3xl font-bold active:scale-95 transition-all">Google Sync</button>
+            <button onclick="loginWithGoogle()" class="w-full mt-10 bg-[#0f172a] text-white py-5 rounded-3xl font-bold active:scale-95 transition-all">Google Sync</button>
         </div>
     </section>
 
@@ -115,12 +114,11 @@
             if (isSpinning) return;
             isSpinning = true;
             const wheel = document.getElementById('wheel');
-            const deg = Math.floor(Math.random() * 3600) + 1800; // Random rotation
+            const deg = Math.floor(Math.random() * 3600) + 1800; 
             wheel.style.transform = `rotate(${deg}deg)`;
 
             setTimeout(async () => {
                 isSpinning = false;
-                // Reward Logic: [Try Again, ₨ 5, ₨ 10, ₨ 50, ₨ 2, Try Again]
                 const wins = [0, 5, 10, 50, 2, 0];
                 const win = wins[Math.floor(Math.random() * wins.length)];
                 
@@ -128,7 +126,7 @@
                     balance: (userObj.balance || 0) + win
                 });
 
-                alert(win > 0 ? `Mubarak Ho! Aapne ₨ ${win} Jeet Liye!` : "Oh ho! Try Again!");
+                alert(win > 0 ? `Mubarak Ho! Aapne ₨ ${win} Jeet Liye!` : "Try Again, Sweetie!");
                 wheel.style.transform = "rotate(0deg)";
             }, 4000);
         }
@@ -137,7 +135,7 @@
             const ps = [{ n: "Standard Node", p: 500, r: 3 }];
             document.getElementById('plans-list').innerHTML = ps.map(p => `
                 <div class="glass p-6 flex justify-between items-center">
-                    <div><p class="font-bold text-xs uppercase">${p.n}</p><p class="text-[8px] text-blue-600 font-black">${p.r}% DAILY</p></div>
+                    <div><p class="font-bold text-xs uppercase">${p.n}</p></div>
                     <button class="px-5 py-2 bg-slate-900 text-white text-[8px] font-bold rounded-xl uppercase">₨ ${p.p}</button>
                 </div>`).join('');
         }
