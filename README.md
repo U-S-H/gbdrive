@@ -7,136 +7,127 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>Vestify | Next-Gen Asset Node</title>
+    <title>Vestify | Asset Management</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Inter:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
-        :root {
-            --primary: #00f2ff;
-            --bg-deep: #050505;
-            --card-bg: rgba(18, 18, 18, 0.8);
-        }
-
         body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-deep); 
-            color: #ffffff;
-            margin: 0;
-            overflow-x: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #F8FAFC; 
+            color: #0F172A; 
         }
 
-        .heading-font { font-family: 'Space Grotesk', sans-serif; }
-
-        /* Cloud-Node Style Background */
-        .grid-bg {
-            background-image: linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px), 
-                              linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px;
-            background-position: center center;
+        .premium-card {
+            background: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 28px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.03);
         }
 
-        .node-glow {
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
-            border: 1px solid rgba(0, 242, 255, 0.1);
+        .blue-gradient-bg {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
         }
 
-        .glass-module {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-        }
+        .nav-btn { color: #64748B; transition: all 0.3s ease; }
+        .nav-active { color: #2563EB; }
 
-        .cyan-text { color: var(--primary); text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
-        
-        .btn-node {
-            background: linear-gradient(90deg, #00f2ff, #0072ff);
-            color: #000;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s all ease;
-        }
-
-        .btn-node:active { transform: scale(0.95); box-shadow: 0 0 30px rgba(0, 242, 255, 0.4); }
-
-        .page { display: none; animation: nodeAppear 0.4s ease; }
+        .page { display: none; animation: fadeIn 0.4s ease-out; }
         .active-page { display: block; }
 
-        @keyframes nodeAppear {
-            from { opacity: 0; filter: blur(10px); transform: scale(0.98); }
-            to { opacity: 1; filter: blur(0); transform: scale(1); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Modern Custom Button */
+        .btn-action {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            transition: all 0.2s;
+        }
+        .btn-action:active { transform: scale(0.96); background: #F1F5F9; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col grid-bg">
+<body class="min-h-screen flex flex-col">
 
-    <section id="auth-ui" class="fixed inset-0 z-[2000] bg-black flex items-center justify-center p-8">
+    <section id="auth-ui" class="fixed inset-0 z-[2000] bg-white flex items-center justify-center p-8">
         <div class="w-full max-w-sm text-center">
-            <div class="mb-12 relative">
-                <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-40 h-40 bg-cyan-500/10 blur-[80px] rounded-full"></div>
-                <h1 class="heading-font text-5xl font-bold tracking-tighter italic cyan-text uppercase">VESTIFY</h1>
-                <p class="text-[8px] tracking-[0.6em] text-slate-500 font-bold uppercase mt-2">Decentralized Asset Node</p>
+            <div class="mb-12">
+                <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-200">
+                    <i class="fa-solid fa-bolt-lightning text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tighter italic">VESTIFY</h1>
+                <p class="text-[10px] tracking-[0.3em] text-slate-400 font-bold uppercase mt-2">Smart Investment Portal</p>
             </div>
-            <div class="glass-module p-8 node-glow">
-                <button onclick="loginWithGoogle()" class="w-full bg-white text-black py-4 rounded-xl font-black text-xs uppercase flex items-center justify-center gap-3 active:scale-95 transition-all">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18">
-                    Sync via Google
-                </button>
-            </div>
+            <button onclick="loginWithGoogle()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 active:scale-95 transition-all shadow-lg">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18" class="bg-white rounded-full p-0.5">
+                Sign in with Google
+            </button>
+            <p class="mt-8 text-[9px] text-slate-400 font-medium">By continuing, you agree to our Terms of Service.</p>
         </div>
     </section>
 
-    <header class="p-6 flex justify-between items-center border-b border-white/5 bg-black/40 backdrop-blur-md">
-        <div class="flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
-            <span class="heading-font font-bold text-lg tracking-widest cyan-text">VESTIFY.SYS</span>
-        </div>
-        <div class="text-[10px] text-slate-500 font-mono tracking-tighter" id="node-id">NODE_7733_ACTIVE</div>
+    <header class="p-6 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-[500] border-b border-slate-100">
+        <span class="font-extrabold text-xl tracking-tighter italic text-blue-600">VESTIFY</span>
+        <button onclick="adminTap()" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-200">
+            <i class="fa-solid fa-fingerprint text-slate-400"></i>
+        </button>
     </header>
 
-    <main id="app-ui" class="hidden flex-1 overflow-y-auto pb-32 p-5">
+    <main id="app-ui" class="hidden flex-1 overflow-y-auto pb-32 p-6">
         
         <div id="p-home" class="page active-page">
-            <div class="glass-module p-8 mb-6 node-glow bg-gradient-to-br from-cyan-500/5 to-transparent">
-                <div class="flex justify-between items-start mb-4">
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest italic">Encrypted Balance</p>
-                    <i class="fa-solid fa-microchip text-cyan-500/50"></i>
-                </div>
-                <h2 class="text-5xl font-light heading-font mb-6 tracking-tighter" id="v-bal">₨ 0</h2>
-                
-                <div class="grid grid-cols-2 gap-4 border-t border-white/5 pt-6">
-                    <div>
-                        <p class="text-[8px] text-slate-500 uppercase font-bold">Accumulated ROI</p>
-                        <p id="v-profit" class="text-xl font-bold cyan-text">₨ 0</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[8px] text-slate-500 uppercase font-bold">Protocol Status</p>
-                        <p id="tier-tag" class="text-[10px] font-black uppercase text-white/80 italic">Standby</p>
+            <div class="mb-6">
+                <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Portfolio Overview</h2>
+            </div>
+
+            <div class="blue-gradient-bg p-8 rounded-[2.5rem] mb-8 text-white shadow-xl shadow-blue-100 relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest mb-1">Total Balance</p>
+                    <h3 class="text-4xl font-extrabold tracking-tight mb-8" id="v-bal">₨ 0</h3>
+                    
+                    <div class="flex justify-between items-center border-t border-white/10 pt-6">
+                        <div>
+                            <p class="text-[9px] opacity-70 uppercase font-bold">Today's Profit</p>
+                            <p id="v-profit" class="text-lg font-bold">₨ 0</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[9px] opacity-70 uppercase font-bold">Active Tier</p>
+                            <p id="tier-tag" class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full">Scanning...</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <button onclick="changePage('wallet')" class="glass-module py-6 flex flex-col items-center gap-2 border-b-2 border-cyan-500 active:bg-cyan-500/5">
-                    <i class="fa-solid fa-cloud-arrow-up text-cyan-400"></i>
-                    <span class="text-[9px] font-black uppercase tracking-widest">Deposit</span>
+            <div class="grid grid-cols-2 gap-4 mb-10">
+                <button onclick="changePage('wallet')" class="premium-card py-6 flex flex-col items-center gap-2 active:bg-slate-50">
+                    <i class="fa-solid fa-plus-circle text-blue-600 text-xl"></i>
+                    <span class="text-[10px] font-bold uppercase text-slate-600">Deposit</span>
                 </button>
-                <button onclick="changePage('withdraw')" class="glass-module py-6 flex flex-col items-center gap-2 border-b-2 border-blue-500 active:bg-blue-500/5">
-                    <i class="fa-solid fa-vault text-blue-400"></i>
-                    <span class="text-[9px] font-black uppercase tracking-widest">Withdraw</span>
+                <button onclick="changePage('withdraw')" class="premium-card py-6 flex flex-col items-center gap-2 active:bg-slate-50">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-slate-400 text-xl"></i>
+                    <span class="text-[10px] font-bold uppercase text-slate-600">Withdraw</span>
                 </button>
             </div>
 
-            <h3 class="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-4 px-2">Active Asset Tiers</h3>
-            <div id="plans-list" class="space-y-3"></div>
+            <h3 class="text-xs font-extrabold uppercase tracking-[0.2em] text-slate-400 mb-5">Investment Plans</h3>
+            <div id="plans-list" class="space-y-4"></div>
         </div>
     </main>
 
-    <nav id="bottom-nav" class="hidden fixed bottom-6 left-6 right-6 h-16 glass-module border border-white/10 flex justify-around items-center px-4 shadow-2xl z-[1000]">
-        <button onclick="changePage('home')" id="n-home" class="cyan-text transition-all"><i class="fa-solid fa-terminal"></i></button>
-        <button onclick="changePage('activity')" id="n-activity" class="text-slate-500 opacity-60"><i class="fa-solid fa-database"></i></button>
-        <button onclick="logout()" class="text-slate-500 opacity-60"><i class="fa-solid fa-power-off"></i></button>
+    <nav id="bottom-nav" class="hidden fixed bottom-6 left-6 right-6 h-20 premium-card flex justify-around items-center px-4 shadow-2xl z-[1000]">
+        <button onclick="changePage('home')" id="n-home" class="nav-btn nav-active flex flex-col items-center gap-1">
+            <i class="fa-solid fa-house-simple text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Home</span>
+        </button>
+        <button onclick="changePage('activity')" id="n-activity" class="nav-btn flex flex-col items-center gap-1">
+            <i class="fa-solid fa-chart-pie text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Stats</span>
+        </button>
+        <button onclick="logout()" class="nav-btn flex flex-col items-center gap-1 text-rose-400">
+            <i class="fa-solid fa-sign-out-alt text-xl"></i>
+            <span class="text-[8px] font-bold uppercase">Exit</span>
+        </button>
     </nav>
 
     <script>
@@ -155,10 +146,10 @@
         const provider = new firebase.auth.GoogleAuthProvider();
 
         const plans = [
-            { n: "Node Basic", p: 1000, r: 4.0 },
-            { n: "Core Power", p: 5000, r: 6.5 },
-            { n: "Grid Master", p: 20000, r: 9.2 },
-            { n: "Cloud Infinity", p: 75000, r: 15.0 }
+            { n: "Bronze Package", p: 1000, r: 3.5 },
+            { n: "Silver Growth", p: 5000, r: 5.0 },
+            { n: "Gold Institutional", p: 25000, r: 8.5 },
+            { n: "Black Asset", p: 100000, r: 12.0 }
         ];
 
         async function loginWithGoogle() {
@@ -166,14 +157,13 @@
                 const res = await auth.signInWithPopup(provider);
                 const name = res.user.displayName;
                 localStorage.setItem('v_user', name);
-                
                 const ref = db.collection("users").doc(name);
                 const d = await ref.get();
                 if(!d.exists) {
-                    await ref.set({ name, balance: 0, profit: 0, tierName: "Node Inactive", time: Date.now() });
+                    await ref.set({ name, balance: 0, profit: 0, tierName: "Inactive", time: Date.now() });
                 }
                 initApp(name);
-            } catch (e) { alert("Authorization Error"); }
+            } catch (e) { alert("Login failed!"); }
         }
 
         function initApp(name) {
@@ -187,31 +177,32 @@
         function renderPlans() {
             const list = document.getElementById('plans-list');
             list.innerHTML = plans.map(p => `
-                <div class="glass-module p-6 flex justify-between items-center active:bg-white/5 border-l-2 border-transparent hover:border-cyan-500 transition-all">
+                <div class="premium-card p-6 flex justify-between items-center active:scale-[0.98] transition-all border-l-4 border-blue-500">
                     <div>
-                        <h4 class="font-bold text-xs uppercase tracking-tighter text-slate-200">${p.n}</h4>
-                        <p class="text-[9px] cyan-text font-black uppercase tracking-widest">${p.r}% ROI / 24H</p>
+                        <h4 class="font-bold text-sm text-slate-800">${p.n}</h4>
+                        <p class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">${p.r}% Daily Return</p>
                     </div>
-                    <p class="heading-font font-bold text-white">₨ ${p.p.toLocaleString()}</p>
+                    <p class="font-extrabold text-slate-900">₨ ${p.p.toLocaleString()}</p>
                 </div>
             `).join('');
         }
 
         function syncData(name) {
             db.collection("users").doc(name).onSnapshot(doc => {
-                const u = doc.data();
-                document.getElementById('v-bal').innerText = "₨ " + (u.balance||0).toLocaleString();
-                document.getElementById('v-profit').innerText = "₨ " + (u.profit||0).toLocaleString();
-                document.getElementById('tier-tag').innerText = u.tierName;
+                if(doc.exists) {
+                    const u = doc.data();
+                    document.getElementById('v-bal').innerText = "₨ " + (u.balance||0).toLocaleString();
+                    document.getElementById('v-profit').innerText = "₨ " + (u.profit||0).toLocaleString();
+                    document.getElementById('tier-tag').innerText = u.tierName;
+                }
             });
         }
 
         function changePage(p) {
             document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
-            document.querySelectorAll('nav button').forEach(b => b.classList.add('opacity-60', 'text-slate-500'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
             document.getElementById('p-'+p).classList.add('active-page');
-            document.getElementById('n-'+p)?.classList.remove('opacity-60', 'text-slate-500');
-            document.getElementById('n-'+p)?.classList.add('cyan-text');
+            document.getElementById('n-'+p)?.classList.add('nav-active');
         }
 
         window.onload = () => {
