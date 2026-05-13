@@ -7,40 +7,31 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>Vestify Elite | Institutional Terminal</title>
+    <title>Vestify Elite | Terminal</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; }
         .dark-mode { --bg: #0b0f1a; --card: #161b2c; --text: #f1f5f9; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.3s; overflow-x: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.3s; overflow: hidden; }
         .glass { background: var(--card); border: 1px solid rgba(0,0,0,0.04); border-radius: 30px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
         .hero-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 40px; padding: 2rem; color: white; margin-bottom: 2rem; }
-        .page { display: none; animation: slideIn 0.4s ease-out; }
+        .page { display: none; animation: fadeIn 0.4s ease-out; }
         .active-page { display: block; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        #wheel { width: 280px; height: 280px; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); cursor: pointer; border-radius: 50%; border: 8px solid #2563eb; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #wheel { width: 280px; height: 280px; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); border-radius: 50%; }
     </style>
 </head>
 <body class="min-h-screen pb-32">
 
-    <section id="auth-ui" class="fixed inset-0 z-[5000] bg-white flex flex-col items-center justify-center p-10">
-        <div class="w-full max-w-sm text-center">
-            <div class="w-20 h-20 bg-blue-600 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-2xl rotate-3">
-                <i class="fa-solid fa-vault text-white text-3xl"></i>
-            </div>
-            <h1 class="text-4xl font-black italic tracking-tighter">VESTIFY ELITE</h1>
-            <button onclick="loginWithGoogle()" class="w-full mt-10 bg-[#0f172a] text-white py-5 rounded-3xl font-bold active:scale-95 transition-all">Google Sync</button>
+    <section id="auth-ui" class="fixed inset-0 z-[5000] bg-white flex flex-col items-center justify-center p-10 text-center">
+        <div class="w-20 h-20 bg-blue-600 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-2xl rotate-3">
+            <i class="fa-solid fa-vault text-white text-3xl"></i>
         </div>
+        <h1 class="text-4xl font-black italic tracking-tighter">VESTIFY ELITE</h1>
+        <button onclick="loginWithGoogle()" class="w-full mt-10 bg-[#0f172a] text-white py-5 rounded-3xl font-bold active:scale-95 transition-all">Google Sync</button>
     </section>
 
-    <header class="px-6 py-6 flex justify-between items-center sticky top-0 z-[1000] bg-inherit/80 backdrop-blur-md">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black">V</div>
-            <span class="font-black text-xl italic">Elite</span>
-        </div>
-    </header>
-
-    <main id="app-ui" class="hidden px-6">
+    <main id="app-ui" class="hidden px-6 pt-6">
         <div id="p-home" class="page active-page">
             <div class="hero-card shadow-2xl">
                 <p class="text-[10px] opacity-50 uppercase mb-1">Portfolio Balance</p>
@@ -49,17 +40,17 @@
             <div id="plans-list" class="space-y-4"></div>
         </div>
 
-        <div id="p-spin" class="page text-center pt-4">
+        <div id="p-spin" class="page text-center">
             <h2 class="text-2xl font-black mb-10">Lucky Terminal</h2>
             <div class="relative inline-block mb-12">
                 <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-10 bg-red-600 z-10" style="clip-path: polygon(50% 100%, 0 0, 100% 0);"></div>
-                <img id="wheel" src="https://i.ibb.co/v4S69YV/lucky-wheel.png" alt="Spin Wheel">
+                <img id="wheel" src="lucky-wheel.png" alt="Wheel" onerror="this.src='https://i.ibb.co/v4S69YV/lucky-wheel.png'">
             </div>
             <button onclick="handleSpin()" class="w-full bg-blue-600 text-white py-5 rounded-3xl font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all">Spin Protocol</button>
         </div>
     </main>
 
-    <nav id="bottom-nav" class="hidden fixed bottom-6 left-6 right-6 h-20 glass flex justify-around items-center shadow-2xl z-[3000]">
+    <nav id="bottom-nav" class="hidden fixed bottom-6 left-6 right-6 h-20 glass flex justify-around items-center z-[3000]">
         <button onclick="changePage('home')" id="n-home" class="text-blue-600 flex flex-col items-center"><i class="fa-solid fa-house-chimney text-lg"></i><span class="text-[8px] font-bold">Vault</span></button>
         <button onclick="changePage('spin')" id="n-spin" class="text-slate-400 flex flex-col items-center"><i class="fa-solid fa-dharmachakra text-lg"></i><span class="text-[8px] font-bold">Games</span></button>
     </nav>
@@ -121,12 +112,8 @@
                 isSpinning = false;
                 const wins = [0, 5, 10, 50, 2, 0];
                 const win = wins[Math.floor(Math.random() * wins.length)];
-                
-                await db.collection("users").doc(userObj.name).update({
-                    balance: (userObj.balance || 0) + win
-                });
-
-                alert(win > 0 ? `Mubarak Ho! Aapne ₨ ${win} Jeet Liye!` : "Try Again, Sweetie!");
+                await db.collection("users").doc(userObj.name).update({ balance: (userObj.balance || 0) + win });
+                alert(win > 0 ? `Won ₨ ${win}!` : "Try Again!");
                 wheel.style.transform = "rotate(0deg)";
             }, 4000);
         }
