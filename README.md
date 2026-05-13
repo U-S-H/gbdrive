@@ -9,185 +9,193 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>Vestify Elite | Institutional Terminal</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        :root { --primary: #2563eb; --bg: #0b0f1a; --card: #161b2c; --text: #f1f5f9; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        .glass { background: rgba(22, 27, 44, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; }
-        .hero-gradient { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid rgba(255,255,255,0.08); }
-        .page { display: none; animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        :root { --primary: #3b82f6; --bg: #0b0f1a; --card: #161b2c; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #f1f5f9; overflow-x: hidden; }
+        .glass { background: rgba(22, 27, 44, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; }
+        .page { display: none; animation: slideUp 0.4s ease; }
         .active-page { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .ticker-wrap { width: 100%; overflow: hidden; background: rgba(37, 99, 235, 0.1); padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .ticker { display: inline-block; white-space: nowrap; animation: ticker 30s linear infinite; }
-        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .notif-toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; animation: toastIn 0.5s ease-out forwards; }
-        @keyframes toastIn { 0% { opacity: 0; transform: translate(-50%, -50px); } 100% { opacity: 1; transform: translate(-50%, 0); } }
-        #wheel { width: 280px; height: 280px; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); border-radius: 50%; box-shadow: 0 0 40px rgba(59, 130, 246, 0.2); }
-        ::-webkit-scrollbar { width: 0; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        input, select { background: #0f172a !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; outline: none; }
     </style>
 </head>
 <body class="min-h-screen pb-32">
 
-    <div class="ticker-wrap fixed top-0 w-full z-[1000] backdrop-blur-md">
-        <div class="ticker text-[10px] font-bold uppercase tracking-widest text-blue-400">
-            BTC/USDT $64,231.50 (+2.4%) • ETH/USDT $3,452.12 (-0.5%) • VESTIFY ELITE VOLUME: $4.2M • PROFIT DISTRIBUTED: ₨ 1.2M • LIVE TERMINAL ACTIVE
+    <div id="admin-panel" class="hidden fixed inset-0 z-[9000] bg-black p-6 overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-black text-blue-500 italic uppercase">System Control</h2>
+            <button onclick="closeAdmin()" class="text-3xl">&times;</button>
         </div>
+        <div id="admin-requests" class="space-y-4"></div>
     </div>
 
-    <div id="admin-panel" class="hidden fixed inset-0 z-[9000] bg-black p-8 overflow-y-auto">
-        <div class="flex justify-between items-center mb-10">
-            <h2 class="text-3xl font-black text-blue-500 italic uppercase">Admin Protocol</h2>
-            <button onclick="closeAdmin()" class="text-4xl text-white">&times;</button>
-        </div>
-        <div class="space-y-6">
-            <div class="glass p-6">
-                <p class="text-xs font-bold text-blue-400 mb-4 uppercase">Injection Protocol</p>
-                <input id="adm-amt" type="number" placeholder="Enter Amount" class="w-full bg-slate-800 p-4 rounded-xl mb-4 outline-none border border-white/10">
-                <button onclick="injectFunds()" class="w-full bg-blue-600 py-4 rounded-xl font-black uppercase text-xs">Inject Balance</button>
-            </div>
-            <p class="text-center opacity-20 text-[10px]">VESTIFY_OS_SECURE</p>
-        </div>
-    </div>
-
-    <section id="auth-ui" class="fixed inset-0 z-[5000] bg-[#0b0f1a] flex flex-col items-center justify-center p-10 text-center">
-        <div id="main-logo" onclick="tapLogo()" class="w-24 h-24 bg-blue-600 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl rotate-3 cursor-pointer active:scale-95 transition-transform">
-            <i class="fa-solid fa-vault text-white text-4xl"></i>
-        </div>
-        <h1 class="text-4xl font-black italic tracking-tighter text-white">VESTIFY <span class="text-blue-500">ELITE</span></h1>
-        <p class="text-slate-500 text-xs mt-3 uppercase tracking-widest font-bold">Institutional Terminal</p>
-        <button onclick="login()" class="w-full max-w-xs mt-16 bg-white text-black py-5 rounded-[2rem] font-extrabold flex items-center justify-center gap-4 active:scale-95 shadow-2xl transition-all">
-            <i class="fa-brands fa-google text-xl"></i> GOOGLE SYNC
-        </button>
-    </section>
-
-    <main id="app-ui" class="hidden pt-16 px-6">
+    <main id="app-ui" class="px-6 pt-10">
         <div id="p-home" class="page active-page">
-            <div class="hero-gradient rounded-[2.5rem] p-8 mb-8 relative overflow-hidden shadow-2xl">
-                <p class="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-2">Net Portfolio</p>
-                <h2 class="text-5xl font-black tracking-tighter" id="v-bal">₨ 0.00</h2>
-                <div class="flex gap-4 mt-10">
-                    <button onclick="changePage('deposit')" class="flex-1 bg-white text-black py-4 rounded-2xl font-black text-[10px] uppercase">Deposit</button>
-                    <button onclick="changePage('withdraw')" class="flex-1 bg-slate-800 text-white py-4 rounded-2xl font-black text-[10px] uppercase border border-white/5">Withdraw</button>
-                </div>
+            <div class="glass p-8 mb-6 text-center shadow-2xl border-blue-500/20">
+                <p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest mb-1">Available Capital</p>
+                <h2 class="text-5xl font-black italic" id="v-bal">₨ 0.00</h2>
             </div>
-
+            
             <div class="grid grid-cols-2 gap-4 mb-8">
-                <div class="glass p-5 text-center">
-                    <p class="text-[8px] opacity-50 uppercase font-black mb-1">Daily Yield</p>
-                    <p class="text-lg font-black text-green-400">₨ 4,200</p>
-                </div>
-                <div class="glass p-5 text-center">
-                    <p class="text-[8px] opacity-50 uppercase font-black mb-1">Active Nodes</p>
-                    <p class="text-lg font-black text-blue-400">12</p>
-                </div>
+                <button onclick="changePage('deposit')" class="glass p-4 font-black text-xs uppercase bg-blue-600/10 text-blue-400 border-blue-600/30">Deposit</button>
+                <button onclick="changePage('withdraw')" class="glass p-4 font-black text-xs uppercase bg-red-600/10 text-red-400 border-red-600/30">Withdraw</button>
             </div>
 
-            <h3 class="text-xl font-black italic mb-6 px-2 uppercase">Institutional Nodes</h3>
-            <div id="plans-list" class="space-y-4 pb-10"></div>
-        </div>
-
-        <div id="p-spin" class="page text-center pt-6">
-            <h2 class="text-3xl font-black italic mb-12">Lucky Terminal</h2>
-            <div class="relative inline-block mb-16">
-                <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-10 h-12 bg-red-600 z-50 shadow-xl" style="clip-path: polygon(50% 100%, 0 0, 100% 0);"></div>
-                <img id="wheel" src="IMG_20260513_123757.jpg" alt="Wheel">
-            </div>
-            <button onclick="doSpin()" class="w-full max-w-sm bg-blue-600 text-white py-6 rounded-[2.5rem] font-black uppercase text-xs tracking-widest shadow-2xl active:scale-95 transition-all">Execute Spin</button>
+            <h3 class="font-black text-lg mb-4 italic uppercase">Transaction History</h3>
+            <div id="history-list" class="space-y-3 opacity-80"></div>
         </div>
 
         <div id="p-deposit" class="page">
-            <h2 class="text-3xl font-black italic mb-10">Funding Protocol</h2>
-            <div class="glass p-8">
-                <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="border-2 border-blue-600 p-6 rounded-3xl text-center bg-blue-600/5"><i class="fa-solid fa-mobile-screen text-3xl text-blue-500 mb-2"></i><p class="text-[10px] font-black uppercase">EasyPaisa</p></div>
-                    <div class="border-2 border-slate-800 p-6 rounded-3xl text-center"><i class="fa-solid fa-wallet text-3xl text-slate-600 mb-2"></i><p class="text-[10px] font-black uppercase">JazzCash</p></div>
+            <h2 class="text-2xl font-black mb-6 italic uppercase">Funding Protocol</h2>
+            <div class="glass p-6 space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold opacity-50 uppercase">Select Method</label>
+                    <select id="dep-method" class="w-full p-4 rounded-xl mt-1" onchange="updateDepInfo()">
+                        <option value="easypaisa">EasyPaisa</option>
+                        <option value="jazzcash">JazzCash</option>
+                        <option value="sadapay">SadaPay</option>
+                    </select>
                 </div>
-                <input type="number" placeholder="Min ₨ 500" class="w-full bg-slate-900/50 p-5 rounded-2xl outline-none font-black text-lg border border-white/5 mb-6">
-                <button class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase text-xs">Proceed</button>
+                <div class="bg-blue-600/10 p-4 rounded-xl border border-blue-600/20">
+                    <p class="text-[10px] font-bold text-blue-400 uppercase">Send Payment To:</p>
+                    <p id="dep-num" class="text-xl font-black mt-1">03379827882</p>
+                    <p id="dep-name" class="text-[10px] opacity-60 uppercase">Account Name: Vestify Elite</p>
+                </div>
+                <input id="dep-amt" type="number" placeholder="Amount (Min 200)" class="w-full p-4 rounded-xl">
+                <input id="dep-tid" type="text" placeholder="TID Number" class="w-full p-4 rounded-xl">
+                <div>
+                    <label class="text-[10px] font-bold opacity-50 uppercase">Upload Proof Screen</label>
+                    <input id="dep-img" type="file" accept="image/*" class="w-full mt-1 text-xs">
+                </div>
+                <button onclick="submitDeposit()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs">Submit Request</button>
+            </div>
+        </div>
+
+        <div id="p-withdraw" class="page">
+            <h2 class="text-2xl font-black mb-6 italic uppercase">Withdraw Capital</h2>
+            <div class="glass p-6 space-y-4">
+                <select id="wd-method" class="w-full p-4 rounded-xl">
+                    <option value="easypaisa">EasyPaisa</option>
+                    <option value="jazzcash">JazzCash</option>
+                    <option value="sadapay">SadaPay</option>
+                </select>
+                <input id="wd-amt" type="number" placeholder="Amount (Min 100)" class="w-full p-4 rounded-xl">
+                <input id="wd-acc" type="text" placeholder="Account Number" class="w-full p-4 rounded-xl">
+                <input id="wd-name" type="text" placeholder="Account Holder Name" class="w-full p-4 rounded-xl">
+                <button onclick="submitWithdraw()" class="w-full bg-red-600 py-4 rounded-2xl font-black uppercase text-xs">Confirm Withdrawal</button>
             </div>
         </div>
     </main>
 
-    <div id="notif-container"></div>
-
-    <nav id="bottom-nav" class="hidden fixed bottom-6 left-6 right-6 h-22 glass flex justify-around items-center z-[4000] border border-white/10">
-        <button onclick="changePage('home')" class="flex flex-col items-center p-4 text-blue-500"><i class="fa-solid fa-house-chimney text-xl"></i><span class="text-[8px] font-black uppercase mt-1">Vault</span></button>
-        <button onclick="changePage('spin')" class="flex flex-col items-center p-4 text-slate-500"><i class="fa-solid fa-dharmachakra text-xl"></i><span class="text-[8px] font-black uppercase mt-1">Spin</span></button>
-        <button onclick="changePage('deposit')" class="flex flex-col items-center p-4 text-slate-500"><i class="fa-solid fa-wallet text-xl"></i><span class="text-[8px] font-black uppercase mt-1">Funding</span></button>
-        <button onclick="alert('Promo Code Section')" class="flex flex-col items-center p-4 text-slate-500"><i class="fa-solid fa-ticket text-xl"></i><span class="text-[8px] font-black uppercase mt-1">Promo</span></button>
+    <nav id="bottom-nav" class="fixed bottom-6 left-6 right-6 h-20 glass flex justify-around items-center z-[4000]">
+        <button onclick="changePage('home')" class="flex flex-col items-center"><i class="fa-solid fa-house"></i><span class="text-[8px] font-bold mt-1">Home</span></button>
+        <button onclick="changePage('deposit')" class="flex flex-col items-center"><i class="fa-solid fa-plus"></i><span class="text-[8px] font-bold mt-1">Add</span></button>
+        <button onclick="changePage('withdraw')" class="flex flex-col items-center"><i class="fa-solid fa-minus"></i><span class="text-[8px] font-bold mt-1">Take</span></button>
+        <button onclick="tapLogo()" class="flex flex-col items-center"><i class="fa-solid fa-gear"></i><span class="text-[8px] font-bold mt-1">Admin</span></button>
     </nav>
 
     <script>
         const firebaseConfig = { apiKey: "AIzaSyC9ofJ1KxRXHnxilpU9gyI87D3BSOZ9v1g", authDomain: "vestify-991f2.firebaseapp.com", projectId: "vestify-991f2", storageBucket: "vestify-991f2.firebasestorage.app", messagingSenderId: "799007097733", appId: "1:799007097733:web:ed3b35b6c4e51dc2e7baec" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const auth = firebase.auth();
-        const provider = new firebase.auth.GoogleAuthProvider();
+        let userObj = { name: "User", balance: 0 };
+        let tapCount = 0;
 
-        let userObj = null, logoTaps = 0, spinActive = false, rotation = 0;
-
-        function tapLogo() { logoTaps++; if(logoTaps >= 5) { const p = prompt("ADMIN_KEY:"); if(p === "net204") document.getElementById('admin-panel').classList.remove('hidden'); logoTaps = 0; } }
+        // Admin Secret
+        function tapLogo() { tapCount++; if(tapCount>=5){ const p = prompt("Key:"); if(p==="net204"){ document.getElementById('admin-panel').classList.remove('hidden'); loadAdminRequests(); } tapCount=0; } }
         function closeAdmin() { document.getElementById('admin-panel').classList.add('hidden'); }
-        async function injectFunds() { const a = parseInt(document.getElementById('adm-amt').value); if(a && userObj) { await db.collection("users").doc(userObj.name).update({ balance: (userObj.balance || 0) + a }); alert("CAPITAL_INJECTED"); } }
 
-        async function login() { try { const r = await auth.signInWithPopup(provider); localStorage.setItem('v_elite_user', r.user.displayName); startApp(r.user.displayName); } catch(e) { alert("Error"); } }
+        function changePage(p) { document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page')); document.getElementById('p-'+p).classList.add('active-page'); }
 
-        function startApp(name) {
-            document.getElementById('auth-ui').classList.add('hidden');
-            document.getElementById('app-ui').classList.remove('hidden');
-            document.getElementById('bottom-nav').classList.remove('hidden');
-            db.collection("users").doc(name).onSnapshot(doc => {
-                userObj = doc.data() || { name: name, balance: 0 };
-                document.getElementById('v-bal').innerText = "₨ " + (userObj.balance || 0).toLocaleString();
+        function updateDepInfo() {
+            const m = document.getElementById('dep-method').value;
+            const n = document.getElementById('dep-num');
+            if(m === 'easypaisa') n.innerText = "03379827882";
+            else n.innerText = "03705519562";
+        }
+
+        async function submitDeposit() {
+            const amt = parseInt(document.getElementById('dep-amt').value);
+            const tid = document.getElementById('dep-tid').value;
+            const file = document.getElementById('dep-img').files[0];
+            if(amt < 200) return alert("Min 200 PKR");
+            if(!tid || !file) return alert("Fill all details");
+
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                await db.collection("requests").add({
+                    type: 'Deposit', amount: amt, tid: tid, proof: reader.result, method: document.getElementById('dep-method').value,
+                    user: "User", status: 'Pending', time: Date.now()
+                });
+                alert("Deposit Pending Approval!");
+                changePage('home');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function submitWithdraw() {
+            const amt = parseInt(document.getElementById('wd-amt').value);
+            const acc = document.getElementById('wd-acc').value;
+            const name = document.getElementById('wd-name').value;
+            if(amt < 100) return alert("Min 100 PKR");
+            if(!acc || !name) return alert("Fill details");
+
+            await db.collection("requests").add({
+                type: 'Withdraw', amount: amt, acc: acc, accName: name, method: document.getElementById('wd-method').value,
+                user: "User", status: 'Pending', time: Date.now()
             });
-            generatePlans(); runFakeNotifs();
+            alert("Withdrawal Pending!");
+            changePage('home');
         }
 
-        function changePage(p) {
-            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
-            document.getElementById('p-'+p).classList.add('active-page');
+        function loadAdminRequests() {
+            db.collection("requests").where("status", "==", "Pending").onSnapshot(snap => {
+                let html = '';
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    html += `<div class="glass p-4 text-[10px]">
+                        <p class="font-black text-blue-400 uppercase">${data.type} Request</p>
+                        <p>User: ${data.user} | Amount: ₨ ${data.amount}</p>
+                        ${data.type==='Deposit' ? `<p>TID: ${data.tid}</p><img src="${data.proof}" class="w-full mt-2 rounded-lg">` : `<p>Acc: ${data.acc} (${data.accName})</p>`}
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="processReq('${doc.id}', 'Approved', ${data.amount})" class="bg-green-600 px-4 py-2 rounded">Approve</button>
+                            <button onclick="processReq('${doc.id}', 'Rejected', 0)" class="bg-red-600 px-4 py-2 rounded">Reject</button>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('admin-requests').innerHTML = html || '<p class="text-center opacity-30">No pending requests</p>';
+            });
         }
 
-        function generatePlans() {
-            let h = '';
-            for(let i=1; i<=20; i++) {
-                h += `<div class="glass p-6 flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-blue-600/10 rounded-xl flex items-center justify-center text-blue-500"><i class="fa-solid fa-microchip"></i></div>
-                        <div><p class="font-black text-xs uppercase italic">Node v.${i}</p><p class="text-[8px] text-green-400 font-bold uppercase">ROI: ₨ ${i*150}/day</p></div>
-                    </div>
-                    <button class="bg-blue-600 text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest">₨ ${(i*1200).toLocaleString()}</button>
-                </div>`;
+        async function processReq(id, status, amt) {
+            await db.collection("requests").doc(id).update({ status: status });
+            if(status === 'Approved') {
+                const userRef = db.collection("users").doc("User");
+                const current = (await userRef.get()).data()?.balance || 0;
+                await userRef.set({ balance: current + amt }, { merge: true });
             }
-            document.getElementById('plans-list').innerHTML = h;
+            alert("Request " + status);
         }
 
-        function runFakeNotifs() {
-            const n = ["Ali", "Sara", "Hamza", "Zain", "Sobia"], m = ["deposited ₨ 5,000", "withdrew ₨ 1,200", "unlocked Node v.5"];
-            setInterval(() => {
-                const t = document.createElement('div');
-                t.className = "notif-toast glass bg-slate-900 px-6 py-3 text-white shadow-2xl flex items-center gap-2";
-                t.innerHTML = `<div class="w-2 h-2 bg-green-500 rounded-full animate-ping"></div><p class="text-[8px] font-bold uppercase">${n[Math.floor(Math.random()*n.length)]} ${m[Math.floor(Math.random()*m.length)]}</p>`;
-                document.getElementById('notif-container').appendChild(t);
-                setTimeout(() => t.remove(), 4000);
-            }, 6000);
-        }
+        // Real-time Updates
+        db.collection("users").doc("User").onSnapshot(doc => {
+            const bal = doc.data()?.balance || 0;
+            document.getElementById('v-bal').innerText = "₨ " + bal.toLocaleString();
+        });
 
-        async function doSpin() {
-            if(spinActive) return; spinActive = true;
-            rotation += Math.floor(Math.random() * 3600) + 1800;
-            document.getElementById('wheel').style.transform = `rotate(${rotation}deg)`;
-            setTimeout(async () => {
-                spinActive = false;
-                const wins = [5, 10, 50, 2, 0, 0];
-                const w = wins[Math.floor(Math.random()*wins.length)];
-                if(w > 0) { await db.collection("users").doc(userObj.name).update({ balance: (userObj.balance || 0) + w }); alert("Win: ₨ "+w); }
-                else alert("Try Again!");
-                document.getElementById('wheel').style.transform = "rotate(0deg)"; rotation = 0;
-            }, 4000);
-        }
+        db.collection("requests").orderBy("time", "desc").limit(10).onSnapshot(snap => {
+            let html = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                const color = d.status === 'Approved' ? 'text-green-400' : (d.status === 'Rejected' ? 'text-red-400' : 'text-yellow-400');
+                html += `<div class="glass p-4 flex justify-between items-center text-[10px]">
+                    <div><p class="font-bold">${d.type} - ${d.method}</p><p class="opacity-50">₨ ${d.amount}</p></div>
+                    <div class="font-black ${color} uppercase">${d.status}</div>
+                </div>`;
+            });
+            document.getElementById('history-list').innerHTML = html;
+        });
 
-        window.onload = () => { if(localStorage.getItem('v_elite_user')) startApp(localStorage.getItem('v_elite_user')); };
     </script>
 </body>
 </html>
