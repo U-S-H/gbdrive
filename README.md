@@ -7,17 +7,17 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>Vestify Elite | Terminal</title>
+    <title>Vestify Elite | Institutional Terminal</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; }
         .dark-mode { --bg: #0b0f1a; --card: #161b2c; --text: #f1f5f9; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.3s; overflow: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.3s; overflow-x: hidden; }
         .glass { background: var(--card); border: 1px solid rgba(0,0,0,0.04); border-radius: 30px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
         .hero-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 40px; padding: 2rem; color: white; margin-bottom: 2rem; }
-        .page { display: none; animation: fadeIn 0.4s ease-out; }
+        .page { display: none; animation: slideIn 0.4s ease-out; }
         .active-page { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         #wheel { width: 280px; height: 280px; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); border-radius: 50%; }
     </style>
 </head>
@@ -44,7 +44,7 @@
             <h2 class="text-2xl font-black mb-10">Lucky Terminal</h2>
             <div class="relative inline-block mb-12">
                 <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-10 bg-red-600 z-10" style="clip-path: polygon(50% 100%, 0 0, 100% 0);"></div>
-                <img id="wheel" src="lucky-wheel.png" alt="Wheel" onerror="this.src='https://i.ibb.co/v4S69YV/lucky-wheel.png'">
+                <img id="wheel" src="lucky-wheel.png" alt="Wheel">
             </div>
             <button onclick="handleSpin()" class="w-full bg-blue-600 text-white py-5 rounded-3xl font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all">Spin Protocol</button>
         </div>
@@ -113,7 +113,7 @@
                 const wins = [0, 5, 10, 50, 2, 0];
                 const win = wins[Math.floor(Math.random() * wins.length)];
                 await db.collection("users").doc(userObj.name).update({ balance: (userObj.balance || 0) + win });
-                alert(win > 0 ? `Won ₨ ${win}!` : "Try Again!");
+                alert(win > 0 ? `Jeet gaye! ₨ ${win}` : "Try Again!");
                 wheel.style.transform = "rotate(0deg)";
             }, 4000);
         }
