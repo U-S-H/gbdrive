@@ -2,175 +2,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jinnah School & Degree College Astore | Smart Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Vestify | Elite Asset Vault</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        * { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
-        .hero-gradient { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
-        .card-modern { background: white; border-radius: 20px; transition: 0.3s; border: 1px solid #e2e8f0; }
-        .card-modern:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
-        .hidden { display: none !important; }
-        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 25s linear infinite; }
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F8FAFC; color: #1E293B; }
+        .vibrant-bg { background: linear-gradient(-45deg, #F0F9FF, #FAF5FF, #F0FDF4, #FFFBEB); background-size: 400% 400%; animation: gradientBG 15s ease infinite; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .glass-light { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
+        .card-blue { background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: white; box-shadow: 0 20px 40px -10px rgba(37, 99, 235, 0.3); }
+        .active-tab { color: #2563EB; font-weight: 800; transform: translateY(-3px); }
+        .page { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .active-page { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .badge-pending { background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 8px; font-size: 8px; font-weight: bold; }
+        .badge-approved { background: #DCFCE7; color: #166534; padding: 2px 8px; border-radius: 8px; font-size: 8px; font-weight: bold; }
     </style>
 </head>
-<body class="bg-slate-50">
+<body class="h-screen flex flex-col vibrant-bg">
 
-    <div class="bg-blue-800 py-2 overflow-hidden border-b border-blue-700">
-        <div class="animate-marquee text-white text-[10px] font-bold uppercase tracking-widest">
-            Admissions 2026 Open for Astore Region • High Grade Performance in Board Exams • Digital Student Portal Live •
+    <section id="auth-ui" class="fixed inset-0 z-[1000] bg-white flex items-center justify-center p-8 text-center">
+        <div class="w-full max-w-sm">
+            <h1 class="text-4xl font-black italic tracking-tighter mb-2 uppercase text-slate-800">VEST<span class="text-blue-600">IFY</span></h1>
+            <p class="text-slate-400 text-[8px] uppercase tracking-[0.4em] mb-12 font-bold italic">Official Digital Asset Vault</p>
+            <div class="glass-light p-10 rounded-[3rem] border-t-4 border-blue-600">
+                <button onclick="loginWithGoogle()" class="w-full bg-white text-slate-800 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 shadow-xl border border-slate-200 flex items-center justify-center gap-3">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18">
+                    Continue with Google
+                </button>
+            </div>
+            <p class="mt-8 text-[7px] text-slate-400 uppercase font-bold tracking-widest">© 2026 Vestify Finance Group</p>
         </div>
-    </div>
+    </section>
 
-    <nav class="sticky top-0 z-[1000] glass-nav p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-900 text-white p-2 rounded-lg font-bold">JS</div>
-                <div>
-                    <h1 class="font-black text-sm tracking-tighter text-blue-950 uppercase leading-none">Jinnah College</h1>
-                    <span class="text-blue-600 text-[8px] font-bold uppercase tracking-widest">Astore Valley</span>
-                </div>
-            </div>
-            <div id="auth-status" class="flex gap-4 items-center">
-                <button id="login-btn" onclick="loginWithGoogle()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase">Google Login</button>
-                <div id="user-ui" class="hidden flex items-center gap-3">
-                    <span id="user-display-name" class="text-[10px] font-bold text-slate-600 uppercase"></span>
-                    <button onclick="logout()" class="text-red-500"><i class="fas fa-power-off"></i></button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <header class="hero-gradient text-white py-20 px-6 text-center">
-        <div class="container mx-auto">
-            <h2 class="text-4xl md:text-6xl font-black mb-6 leading-tight">Digital Education <br>in Astore</h2>
-            <p class="text-blue-100 text-sm max-w-lg mx-auto mb-10">Professional environment and modern technology for the future leaders of Gilgit Baltistan.</p>
-            <div class="flex justify-center gap-3">
-                <button class="bg-white text-blue-900 px-6 py-3 rounded-xl font-bold text-xs uppercase shadow-xl">Apply Now</button>
-                <button class="border border-white/30 px-6 py-3 rounded-xl font-bold text-xs uppercase">E-Library</button>
-            </div>
+    <header class="p-6 flex justify-between items-center sticky top-0 z-[500] bg-white/60 backdrop-blur-md border-b border-gray-200/50">
+        <h1 class="text-xl font-black italic tracking-tighter uppercase text-slate-800">VEST<span class="text-blue-600 text-2xl">IFY</span></h1>
+        <div onclick="adminTap()" class="bg-blue-100 p-2.5 rounded-xl border border-blue-200 active:scale-90 transition-all">
+            <i class="fa-solid fa-fingerprint text-blue-600 text-lg"></i>
         </div>
     </header>
 
-    <section class="py-16 container mx-auto px-6 grid md:grid-cols-3 gap-6">
-        <div class="card-modern p-8 border-l-4 border-blue-600">
-            <i class="fas fa-microscope text-2xl text-blue-600 mb-4"></i>
-            <h3 class="font-bold text-sm uppercase mb-2">Science Wing</h3>
-            <p class="text-slate-500 text-[11px] leading-relaxed">Fully equipped labs for professional scientific research and practical exams.</p>
-        </div>
-        <div class="card-modern p-8 border-l-4 border-green-600">
-            <i class="fas fa-graduation-cap text-2xl text-green-600 mb-4"></i>
-            <h3 class="font-bold text-sm uppercase mb-2">Scholarships</h3>
-            <p class="text-slate-500 text-[11px] leading-relaxed">Financial support for meritorious students across the GB region.</p>
-        </div>
-        <div class="card-modern p-8 border-l-4 border-purple-600">
-            <i class="fas fa-bus text-2xl text-purple-600 mb-4"></i>
-            <h3 class="font-bold text-sm uppercase mb-2">Secure Vans</h3>
-            <p class="text-slate-500 text-[11px] leading-relaxed">Coordinated transport network for safe student travel within the valley.</p>
-        </div>
-    </section>
-
-    <section id="portal" class="bg-slate-900 py-20 px-6">
-        <div class="max-w-xl mx-auto bg-white rounded-3xl p-8 shadow-2xl">
-            <h3 class="text-xl font-black text-slate-900 mb-2 uppercase text-center">Student Portal</h3>
-            <p class="text-center text-[10px] text-slate-400 font-bold uppercase mb-8">Official Result Verification</p>
-            
-            <div class="space-y-4">
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Registration Number</label>
-                    <input id="student-reg" type="text" placeholder="JS-2026-XXXX" class="w-full bg-transparent outline-none font-bold text-slate-800">
+    <main id="app-ui" class="hidden flex-1 overflow-y-auto pb-32">
+        <div id="p-home" class="page active-page p-6">
+            <div class="card-blue p-8 rounded-[2.5rem] mb-6 relative overflow-hidden">
+                <p class="text-[10px] opacity-80 font-black mb-1 uppercase tracking-widest">Active Balance</p>
+                <h2 class="text-5xl font-black tracking-tighter mb-2" id="v-bal">₨ 0</h2>
+                <div id="countdown-display" class="text-[9px] font-black uppercase text-blue-200 italic mb-6">Secure System Active</div>
+                <div class="flex items-center justify-between border-t border-white/20 pt-6">
+                    <div>
+                        <p class="text-[8px] opacity-70 font-black uppercase">Net Profit</p>
+                        <p id="v-profit" class="text-lg font-black text-white">₨ 0</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[8px] opacity-70 font-black uppercase tracking-tighter">Current Plan</p>
+                        <p id="tier-tag" class="text-[10px] font-black uppercase italic text-blue-100">None</p>
+                    </div>
                 </div>
-                <button onclick="fetchResult()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg active:scale-95 transition">Fetch Result</button>
             </div>
-            
-            <div id="result-box" class="hidden mt-6 p-5 rounded-2xl bg-blue-50 border border-blue-100 text-center">
-                <p id="res-name" class="font-black text-blue-900 uppercase text-xs"></p>
-                <p id="res-grade" class="text-2xl font-black text-blue-600 mt-2"></p>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="changePage('wallet')" class="glass-light p-6 rounded-[2rem] flex flex-col items-center gap-2 border-b-4 border-blue-500 active:scale-95 transition-all">
+                    <i class="fa-solid fa-plus text-blue-600"></i>
+                    <span class="text-[9px] font-black uppercase text-slate-600">Deposit</span>
+                </button>
+                <button onclick="changePage('withdraw')" class="glass-light p-6 rounded-[2rem] flex flex-col items-center gap-2 border-b-4 border-rose-500 active:scale-95 transition-all">
+                    <i class="fa-solid fa-paper-plane text-rose-600"></i>
+                    <span class="text-[9px] font-black uppercase text-slate-600">Withdraw</span>
+                </button>
             </div>
         </div>
-    </section>
+        
+        </main>
 
-    <div class="fixed bottom-6 left-6 z-[5000]">
-        <button id="secretAdmin" class="opacity-10 hover:opacity-100 grayscale hover:grayscale-0 transition-all duration-500">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_Drive_icon_%282020%29.svg/1200px-Google_Drive_icon_%282020%29.svg.png" class="w-10 h-10">
-        </button>
-    </div>
-
-    <div onclick="window.open('https://wa.me/923000000000')" class="fixed bottom-6 right-6 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center text-white text-2xl shadow-xl cursor-pointer z-[4000] active:scale-90 transition">
-        <i class="fab fa-whatsapp"></i>
-    </div>
+    <nav id="bottom-nav" class="hidden bg-white/80 backdrop-blur-xl border-t border-slate-100 p-6 flex justify-around items-center fixed bottom-0 left-0 w-full z-[200] rounded-t-[3.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+        <button onclick="changePage('home')" id="n-home" class="flex flex-col items-center transition-all active-tab"><i class="fa-solid fa-house-user text-xl"></i><span class="text-[8px] font-black uppercase mt-1">Vault</span></button>
+        <button onclick="changePage('invest')" id="n-invest" class="flex flex-col items-center transition-all opacity-40"><i class="fa-solid fa-chart-line text-xl"></i><span class="text-[8px] font-black uppercase mt-1">Growth</span></button>
+        <button onclick="changePage('activity')" id="n-activity" class="flex flex-col items-center transition-all opacity-40"><i class="fa-solid fa-receipt text-xl"></i><span class="text-[8px] font-black uppercase mt-1">Ledger</span></button>
+        <button onclick="changePage('more')" id="n-more" class="flex flex-col items-center transition-all opacity-40"><i class="fa-solid fa-circle-info text-xl"></i><span class="text-[8px] font-black uppercase mt-1">Info</span></button>
+    </nav>
 
     <script>
-        // Firebase Configuration
-        const fbConfig = {
-            apiKey: "AIzaSyB2etNdujWulCIa6-bk0P6yaxYPgNlzzto",
-            authDomain: "vibes-643ec.firebaseapp.com",
-            databaseURL: "https://vibes-643ec-default-rtdb.firebaseio.com",
-            projectId: "vibes-643ec",
-            storageBucket: "vibes-643ec.firebasestorage.app",
-            messagingSenderId: "1073588694472",
-            appId: "1:1073588694472:web:7a87ed21652f303e3164fd"
+        // Aapka naya Vestify Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9ofJ1KxRXHnxilpU9gyI87D3BSOZ9v1g",
+            authDomain: "vestify-991f2.firebaseapp.com",
+            databaseURL: "https://vestify-991f2-default-rtdb.firebaseio.com",
+            projectId: "vestify-991f2",
+            storageBucket: "vestify-991f2.firebasestorage.app",
+            messagingSenderId: "799007097733",
+            appId: "1:799007097733:web:ed3b35b6c4e51dc2e7baec"
         };
-        firebase.initializeApp(fbConfig);
-        const auth = firebase.auth(); const db = firebase.database();
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
 
-        // Auth Logic
-        auth.onAuthStateChanged(user => {
-            if(user) {
-                document.getElementById('login-btn').classList.add('hidden');
-                document.getElementById('user-ui').classList.remove('hidden');
-                document.getElementById('user-display-name').innerText = user.displayName;
-            } else {
-                document.getElementById('login-btn').classList.remove('hidden');
-                document.getElementById('user-ui').classList.add('hidden');
-            }
-        });
+        let user = null;
 
-        function loginWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-        function logout() { auth.signOut().then(() => location.reload()); }
+        // Login with Google Function
+        async function loginWithGoogle() {
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const gUser = result.user;
+                const name = gUser.displayName;
 
-        // Fetch Result from Firebase
-        function fetchResult() {
-            const reg = document.getElementById('student-reg').value;
-            if(!reg) return alert("Enter Registration No");
-            
-            db.ref('results/' + reg).once('value', snap => {
-                const data = snap.val();
-                const box = document.getElementById('result-box');
-                if(data) {
-                    box.classList.remove('hidden');
-                    document.getElementById('res-name').innerText = data.name;
-                    document.getElementById('res-grade').innerText = "GRADE: " + data.grade;
-                } else {
-                    alert("No Record Found");
-                    box.classList.add('hidden');
+                const ref = db.collection("users").doc(name);
+                const d = await ref.get();
+                
+                if(!d.exists) {
+                    await ref.set({ 
+                        name: name, 
+                        email: gUser.email, 
+                        balance: 0, 
+                        profit: 0, 
+                        time: Date.now(), 
+                        activeTier: 0, 
+                        tierROI: 0, 
+                        lastReqTime: Date.now(), 
+                        tierName: "Inactive" 
+                    });
                 }
+                
+                startApp(name);
+            } catch (e) {
+                alert("Login Failed! Please check your Google account.");
+            }
+        }
+
+        function startApp(name) {
+            localStorage.setItem('mc_user', name);
+            document.getElementById('auth-ui').classList.add('hidden');
+            document.getElementById('app-ui').classList.remove('hidden');
+            document.getElementById('bottom-nav').classList.remove('hidden');
+            startSync(name);
+        }
+
+        function startSync(name) {
+            db.collection("users").doc(name).onSnapshot(doc => { 
+                if(doc.exists) { 
+                    user = doc.data(); 
+                    document.getElementById('v-bal').innerText = "₨ " + (user.balance||0).toLocaleString(); 
+                    document.getElementById('v-profit').innerText = "₨ " + (user.profit||0).toLocaleString(); 
+                    document.getElementById('tier-tag').innerText = user.tierName; 
+                } 
             });
         }
 
-        // Secret Admin (5 Taps Logic)
-        let taps = 0;
-        document.getElementById('secretAdmin').addEventListener('click', () => {
-            taps++;
-            if(taps === 5) {
-                const key = prompt("ADMIN SECURE KEY:");
-                if(key === "gb46") {
-                    alert("Principal Dashboard Access Granted.");
-                    // Add admin redirect logic here
-                } else {
-                    alert("Unauthorized Access Attempt.");
-                    taps = 0;
-                }
-            }
-            setTimeout(() => taps = 0, 3000);
-        });
+        function changePage(p) {
+            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
+            document.querySelectorAll('nav button').forEach(b => {
+                b.classList.add('opacity-40');
+                b.classList.remove('active-tab');
+            });
+            document.getElementById('p-' + p).classList.add('active-page');
+            document.getElementById('n-' + p).classList.remove('opacity-40');
+            document.getElementById('n-' + p).classList.add('active-tab');
+        }
+
+        // Auto-login if session exists
+        window.onload = () => {
+            const saved = localStorage.getItem('mc_user');
+            if(saved) startApp(saved);
+        };
     </script>
 </body>
 </html>
