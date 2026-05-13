@@ -47,7 +47,7 @@
             <h2 class="text-2xl font-black mb-10">Lucky Terminal</h2>
             <div id="wheel-container" class="mb-12">
                 <div class="pointer"></div>
-                <img id="wheel" src="WA_1778657843473.jpeg" alt="Wheel">
+                <img id="wheel" src="IMG_20260513_123757.jpg" alt="Wheel">
             </div>
             <button onclick="handleSpin()" class="w-full bg-blue-600 text-white py-5 rounded-3xl font-black uppercase text-xs tracking-widest shadow-xl active:scale-95 transition-all">Spin Protocol</button>
         </div>
@@ -74,7 +74,7 @@
 
         let userObj = null;
         let isSpinning = false;
-        let currentRotation = 0;
+        let totalRotation = 0;
 
         async function loginWithGoogle() {
             const res = await auth.signInWithPopup(provider);
@@ -109,7 +109,7 @@
             if (isSpinning) return;
             isSpinning = true;
 
-            // Rewards matching the segments in your image
+            // Aapki image ke mutabiq 6 segments ka logic
             const rewards = [
                 { label: "Rs 5", value: 5, angle: 0 },
                 { label: "Rs 10", value: 10, angle: 300 },
@@ -120,11 +120,11 @@
             ];
 
             const prize = rewards[Math.floor(Math.random() * rewards.length)];
-            const extraSpins = (Math.floor(Math.random() * 5) + 5) * 360; 
-            currentRotation += extraSpins + prize.angle - (currentRotation % 360);
+            const spins = (Math.floor(Math.random() * 5) + 5) * 360; 
+            totalRotation += spins + prize.angle - (totalRotation % 360);
 
             const wheel = document.getElementById('wheel');
-            wheel.style.transform = `rotate(${currentRotation}deg)`;
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
 
             setTimeout(async () => {
                 isSpinning = false;
