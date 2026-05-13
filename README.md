@@ -8,206 +8,141 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>Vestify Elite | Professional Terminal</title>
+    <title>Vestify Ultra-Max | Global Terminal</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F9FAFB; color: #111827; }
+        :root { --primary: #2563eb; --bg: #f9fafb; --card: #ffffff; --text: #111827; }
+        .dark-mode { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         
-        .bento-card { background: #FFFFFF; border: 1px solid #F3F4F6; border-radius: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .vip-diamond { background: linear-gradient(135deg, #0F172A 0%, #334155 100%); color: white; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.3s; }
+        .bento { background: var(--card); border: 1px solid rgba(0,0,0,0.05); border-radius: 24px; }
         
-        /* Live Payout Ticker */
-        @keyframes scroll-up { 0% { transform: translateY(100%); } 100% { transform: translateY(-100%); } }
-        .payout-item { animation: slideUpFade 4s infinite; opacity: 0; position: absolute; width: 100%; }
-        @keyframes slideUpFade { 
-            0% { transform: translateY(20px); opacity: 0; }
-            10% { transform: translateY(0); opacity: 1; }
-            90% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-20px); opacity: 0; }
-        }
+        /* Spin Wheel Style */
+        #wheel-container { position: relative; width: 200px; height: 200px; margin: auto; }
+        #wheel { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #2563eb; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
+        .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: red; clip-path: polygon(50% 100%, 0 0, 100% 0); z-index: 10; }
 
-        .page { display: none; animation: fadeIn 0.4s ease; }
+        /* Achievement Badge Glow */
+        .badge-glow { box-shadow: 0 0 15px rgba(37, 99, 235, 0.3); border: 1px solid #2563eb; }
+        
+        .page { display: none; animation: slideUp 0.5s ease-out; }
         .active-page { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen">
 
-    <div class="h-8 bg-blue-600 flex items-center justify-center overflow-hidden relative">
-        <div id="payout-feed" class="text-[9px] font-bold text-white uppercase tracking-widest text-center w-full">
-            </div>
-    </div>
-
-    <header class="p-6 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-[1000]">
+    <header class="p-6 flex justify-between items-center sticky top-0 z-[1000] bg-inherit/80 backdrop-blur-md border-b border-slate-100">
         <div class="flex items-center gap-2">
-            <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-100 rotate-3">
-                <i class="fa-solid fa-gem text-white text-sm"></i>
-            </div>
-            <span class="font-black text-xl italic tracking-tighter">VESTIFY</span>
+            <div class="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-v text-white"></i></div>
+            <span class="font-black text-xl tracking-tighter uppercase">Vestify</span>
         </div>
-        <div id="vip-badge" class="px-3 py-1 bg-slate-100 text-[8px] font-black rounded-full uppercase border border-slate-200">Standard User</div>
+        <div class="flex items-center gap-4">
+            <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-full bento flex items-center justify-center"><i class="fa-solid fa-moon"></i></button>
+            <div class="relative"><i class="fa-solid fa-bell text-slate-400 text-xl"></i><div class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div></div>
+        </div>
     </header>
 
-    <main id="app-ui" class="flex-1 overflow-y-auto pb-32 px-6 pt-4">
-        
+    <main class="p-6 pb-32">
         <div id="p-home" class="page active-page">
-            <div class="vip-diamond p-8 rounded-[2.5rem] mb-6 relative overflow-hidden shadow-2xl">
-                <canvas id="balanceChart" class="absolute -right-4 -bottom-4 w-32 h-32 opacity-20"></canvas>
+            
+            <div class="bento p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Market Performance</h3>
+                    <span class="text-[10px] font-bold text-emerald-500">+12.5% Up</span>
+                </div>
+                <canvas id="growthChart" height="120"></canvas>
+            </div>
+
+            <div class="bg-blue-600 p-8 rounded-[2.5rem] text-white mb-6 shadow-xl shadow-blue-200 relative overflow-hidden">
                 <div class="relative z-10">
-                    <p class="text-[9px] font-bold opacity-60 uppercase tracking-widest mb-1">Active Portfolio</p>
-                    <h2 class="text-4xl font-extrabold tracking-tighter mb-10" id="v-bal">₨ 0.00</h2>
-                    
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-[8px] opacity-40 uppercase font-black">Daily Check-in</p>
-                            <button onclick="dailyBonus()" id="bonus-btn" class="mt-1 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] font-bold transition-all">Claim ₨ 2.00</button>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[8px] opacity-40 uppercase font-black">Hourly Yield</p>
-                            <p id="v-profit" class="text-lg font-bold text-emerald-400">₨ 0.0000</p>
-                        </div>
+                    <p class="text-[9px] font-bold opacity-60 uppercase tracking-widest">Global Capital</p>
+                    <h2 class="text-4xl font-extrabold tracking-tighter mb-8" id="v-bal">₨ 0.00</h2>
+                    <div class="flex justify-between border-t border-white/10 pt-4">
+                        <p class="text-[8px] font-black uppercase">Account Level: <span id="rank">Bronze</span></p>
+                        <p class="text-[8px] font-black uppercase">SAFE Fund: <span class="text-emerald-300">Active</span></p>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-3 mb-8">
-                <div class="bento-card p-4 text-center">
-                    <p class="text-[7px] font-bold text-slate-400 uppercase">Team Size</p>
-                    <p class="text-sm font-black" id="team-size">0</p>
+            <div class="flex gap-4 overflow-x-auto pb-4 mb-6 no-scrollbar">
+                <div class="min-w-[120px] bento p-4 flex flex-col items-center badge-glow">
+                    <i class="fa-solid fa-trophy text-blue-600 mb-2"></i>
+                    <span class="text-[8px] font-black uppercase text-center">First Deposit</span>
                 </div>
-                <div class="bento-card p-4 text-center">
-                    <p class="text-[7px] font-bold text-slate-400 uppercase">Commish</p>
-                    <p class="text-sm font-black text-blue-600" id="team-earn">₨ 0</p>
+                <div class="min-w-[120px] bento p-4 flex flex-col items-center opacity-40">
+                    <i class="fa-solid fa-users-gear text-slate-400 mb-2"></i>
+                    <span class="text-[8px] font-black uppercase text-center">Team Leader</span>
                 </div>
-                <div onclick="copyRef()" class="bento-card p-4 text-center active:scale-95 transition-all bg-blue-50">
-                    <i class="fa-solid fa-share-nodes text-blue-600 text-xs"></i>
-                    <p class="text-[7px] font-bold text-blue-600 uppercase mt-1">Invite</p>
+                <div class="min-w-[120px] bento p-4 flex flex-col items-center opacity-40">
+                    <i class="fa-solid fa-crown text-slate-400 mb-2"></i>
+                    <span class="text-[8px] font-black uppercase text-center">Millionaire</span>
                 </div>
             </div>
 
-            <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6">Investment Terminal</h3>
-            <div id="plans-list" class="space-y-6"></div>
+            <div class="bento p-6 mb-6 text-center">
+                <h4 class="text-xs font-black uppercase tracking-widest mb-4">Lucky Wheel Rewards</h4>
+                <div id="wheel-container">
+                    <div class="pointer"></div>
+                    <img id="wheel" src="https://i.ibb.co/3Ym9G2F/wheel-bg.png" alt="wheel">
+                </div>
+                <button onclick="spinWheel()" id="spin-btn" class="mt-6 bg-blue-600 text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-blue-100">Spin for ₨ 10</button>
+            </div>
+
+            <div id="plans-list" class="space-y-4"></div>
         </div>
     </main>
 
-    <nav id="bottom-nav" class="fixed bottom-6 left-6 right-6 h-20 bento-card flex justify-around items-center px-4 shadow-2xl z-[1000]">
-        <button onclick="changePage('home')" id="n-home" class="text-blue-600 flex flex-col items-center gap-1"><i class="fa-solid fa-house text-xl"></i><span class="text-[8px] font-bold uppercase">Vault</span></button>
-        <button onclick="changePage('refer')" class="text-slate-400 flex flex-col items-center gap-1"><i class="fa-solid fa-users text-xl"></i><span class="text-[8px] font-bold uppercase">Team</span></button>
-        <button onclick="logout()" class="text-rose-400 flex flex-col items-center gap-1"><i class="fa-solid fa-power-off text-xl"></i><span class="text-[8px] font-bold uppercase">Exit</span></button>
+    <nav class="fixed bottom-0 left-0 w-full p-6 flex justify-around items-center bg-white/90 backdrop-blur-md border-t border-slate-100 z-[1000]">
+        <button class="text-blue-600"><i class="fa-solid fa-house-chimney text-xl"></i></button>
+        <button class="text-slate-400"><i class="fa-solid fa-gamepad text-xl"></i></button>
+        <button class="text-slate-400"><i class="fa-solid fa-wallet text-xl"></i></button>
+        <button class="text-slate-400"><i class="fa-solid fa-user-astronaut text-xl"></i></button>
     </nav>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC9ofJ1KxRXHnxilpU9gyI87D3BSOZ9v1g",
-            authDomain: "vestify-991f2.firebaseapp.com",
-            projectId: "vestify-991f2",
-            storageBucket: "vestify-991f2.firebasestorage.app",
-            messagingSenderId: "799007097733",
-            appId: "1:799007097733:web:ed3b35b6c4e51dc2e7baec"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        // 1. Dark Mode Toggle
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
 
-        let userData = { balance: 0, profit: 0, tierROI: 0, teamSize: 0, totalTeamEarned: 0 };
+        // 2. Growth Chart
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['1h', '2h', '3h', '4h', '5h', '6h'],
+                datasets: [{
+                    label: 'Yield Rate',
+                    data: [12, 19, 15, 25, 22, 30],
+                    borderColor: '#2563eb',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(37, 99, 235, 0.05)'
+                }]
+            },
+            options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+        });
 
-        // 1. Live Payout Feed Simulator
-        const payouts = [
-            "Ali just withdrew ₨ 1,200 via Easypaisa",
-            "M. Akbar upgraded to Diamond VIP",
-            "Sara claimed team commission of ₨ 4,500",
-            "System: Weekend Booster is now Active!"
-        ];
-        let pIndex = 0;
-        setInterval(() => {
-            const feed = document.getElementById('payout-feed');
-            feed.innerHTML = `<div class="payout-item">${payouts[pIndex]}</div>`;
-            pIndex = (pIndex + 1) % payouts.length;
-        }, 4000);
-
-        // 2. Chart Integration
-        function initChart() {
-            const ctx = document.getElementById('balanceChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [70, 30],
-                        backgroundColor: ['#3B82F6', 'transparent'],
-                        borderWidth: 0
-                    }]
-                },
-                options: { cutout: '80%', events: [] }
-            });
+        // 3. Lucky Spin Logic
+        let isSpinning = false;
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            const wheel = document.getElementById('wheel');
+            const randomDegree = Math.floor(Math.random() * 3600) + 720; // At least 2 rotations
+            wheel.style.transform = `rotate(${randomDegree}deg)`;
+            
+            setTimeout(() => {
+                isSpinning = false;
+                alert("Congratulations! You won a mystery reward!");
+                // Yahan aap Firebase mein balance update kar sakte hain
+            }, 4000);
         }
 
-        // 3. Daily Bonus Logic
-        async function dailyBonus() {
-            const btn = document.getElementById('bonus-btn');
-            if(btn.innerText === "Claimed") return;
-            userData.balance += 2;
-            await db.collection("users").doc(userData.name).update({ balance: userData.balance });
-            btn.innerText = "Claimed";
-            btn.classList.add('opacity-50');
-            alert("Daily Reward of ₨ 2.00 added to your vault!");
-        }
-
-        // 4. Referral Copy
-        function copyRef() {
-            const link = `https://vestify.pages.dev/?ref=${userData.name}`;
-            navigator.clipboard.writeText(link);
-            alert("Referral Link Copied! Send it to your team.");
-        }
-
-        // 5. VIP Badge Update
-        function updateVIP(bal) {
-            const badge = document.getElementById('vip-badge');
-            if(bal > 100000) { badge.innerText = "Diamond VIP"; badge.classList.add('bg-blue-600', 'text-white'); }
-            else if(bal > 10000) { badge.innerText = "Gold Member"; badge.classList.add('bg-amber-100', 'text-amber-600'); }
-            else { badge.innerText = "Standard Member"; }
-        }
-
-        async function syncData(name) {
-            db.collection("users").doc(name).onSnapshot(doc => {
-                userData = doc.data();
-                userData.name = name;
-                document.getElementById('v-bal').innerText = "₨ " + (userData.balance||0).toLocaleString();
-                document.getElementById('team-size').innerText = userData.teamSize || 0;
-                document.getElementById('team-earn').innerText = "₨ " + (userData.totalTeamEarned || 0);
-                updateVIP(userData.balance);
-            });
-        }
-
-        window.onload = () => {
-            const saved = localStorage.getItem('v_user');
-            if(saved) {
-                initChart();
-                syncData(saved);
-                renderPlans();
-            }
-        };
-
+        // 4. Firebase & App Logic
+        // (Yahan aap apna purana Firebase logic merge kar sakte hain)
         function renderPlans() {
-            const plans = [
-                { n: "Quantum Node", p: 200, r: 2.5, img: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400" },
-                { n: "Silver Vault", p: 10000, r: 6.5, img: "https://images.unsplash.com/photo-1621761191319-c6fb62004040?w=400" }
-            ];
-            const list = document.getElementById('plans-list');
-            list.innerHTML = plans.map(p => `
-                <div class="bento-card overflow-hidden group">
-                    <img src="${p.img}" class="h-32 w-full object-cover filter brightness-75 group-hover:brightness-100 transition-all">
-                    <div class="p-6">
-                        <div class="flex justify-between items-start">
-                            <div><h4 class="font-bold">${p.n}</h4><p class="text-[9px] text-blue-600 font-black">${p.r}% Daily</p></div>
-                            <p class="font-black">₨ ${p.p.toLocaleString()}</p>
-                        </div>
-                        <button onclick="buyPlan(${p.p})" class="w-full mt-4 bg-slate-900 text-white py-3 rounded-xl font-bold text-[10px] uppercase">Activate</button>
-                    </div>
-                </div>
-            `).join('');
+            // ... (Purana render logic)
         }
-
-        function logout() { localStorage.clear(); location.reload(); }
-        function changePage(p) { /* Logic to switch tabs */ }
     </script>
 </body>
 </html>
