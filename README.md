@@ -1,438 +1,898 @@
-<html lang="ur" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vestify - Premium Mining Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>ویسٹی فائی الٹیمیٹ پرو</title>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #010409; color: white; margin: 0; overflow-x: hidden; text-align: right; }
-        .glass { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.05); border-radius: 32px; }
-        .page { display: none; padding: 20px; animation: slideUp 0.4s ease-out; }
-        .active-page { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, #060b19 0%, #0c162d 50%, #050914 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding-bottom: 90px;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow Particles */
+        .bg-glow-1 {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 65, 108, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: -50px;
+            left: -50px;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .bg-glow-2 {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(0,0,0,0) 70%);
+            bottom: 100px;
+            right: -100px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* App Header */
+        .vestify-header {
+            padding: 20px 16px;
+            background: rgba(11, 21, 40, 0.6);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(255, 65, 108, 0.4);
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            transform: rotate(-5deg);
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            background: linear-gradient(to right, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 9px;
+            color: #38bdf8;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+
+        .live-badge {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            animation: pulse 1.6s infinite;
+        }
+
+        .live-badge span {
+            font-size: 11px;
+            font-weight: 700;
+            color: #10b981;
+            letter-spacing: 0.5px;
+        }
+
+        /* Glassmorphism Balance Dashboard */
+        .stats-dashboard {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            margin: 0 16px 20px 16px;
+        }
+
+        .stat-box-left p, .stat-box-right p {
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .stat-box-left h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-box-left h2 span {
+            font-size: 14px;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .stat-box-right {
+            text-align: right;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            padding-left: 30px;
+        }
+
+        .stat-box-right h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #38bdf8;
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        /* Guidelines Notification Bar */
+        .info-bar {
+            background: linear-gradient(90deg, rgba(249, 115, 22, 0.08) 0%, rgba(249, 115, 22, 0.02) 100%);
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin: 0 16px 20px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-bar i {
+            color: #f97316;
+            font-size: 18px;
+            animation: bounce 2s infinite;
+        }
+
+        .info-bar p {
+            font-size: 12px;
+            color: #fdba74;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        /* Active Miners / Countdown section */
+        .miner-status-container {
+            margin: 0 16px 20px 16px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .miner-status-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .miner-status-title i { color: #ff416c; }
+
+        .active-miner-pill {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 12px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #cbd5e1;
+            font-size: 13px;
+        }
+
+        /* Action Claim Button */
+        .btn-container {
+            padding: 0 16px;
+            margin-bottom: 25px;
+        }
+
+        .premium-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            border: none;
+            outline: none;
+            color: white;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(255, 65, 108, 0.35);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .premium-btn:active {
+            transform: scale(0.98);
+        }
+
+        .premium-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 30%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(30deg);
+            animation: shine 4s infinite linear;
+        }
+
+        /* Bubble Rewards Mining Grid */
+        .bubble-zone-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin: 0 20px 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .bubble-zone-title span { color: #38bdf8; }
+
+        .bubble-wrapper {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 24px;
+            margin: 0 16px 25px 16px;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            justify-items: center;
+        }
+
+        .crypto-bubble {
+            width: 75px;
+            height: 75px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(56, 189, 248, 0.15) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: inset 0 4px 10px rgba(255, 255, 255, 0.1), 0 8px 20px rgba(0,0,0,0.2);
+            animation: floatBubble 4s infinite ease-in-out;
+            transition: all 0.4s ease;
+        }
+
+        .crypto-bubble:nth-child(2) { animation-delay: 0.7s; }
+        .crypto-bubble:nth-child(3) { animation-delay: 1.4s; }
+        .crypto-bubble:nth-child(4) { animation-delay: 2.1s; }
+        .crypto-bubble:nth-child(5) { animation-delay: 2.8s; }
+        .crypto-bubble:nth-child(6) { animation-delay: 3.5s; }
+
+        .crypto-bubble:active {
+            transform: scale(0.85);
+            background: rgba(56, 189, 248, 0.3);
+        }
+
+        .crypto-bubble i {
+            font-size: 20px;
+            color: #38bdf8;
+            margin-bottom: 4px;
+        }
+
+        .crypto-bubble span {
+            font-size: 11px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .crypto-bubble.bubble-claimed {
+            opacity: 0.3;
+            pointer-events: none;
+            transform: scale(0.9);
+            box-shadow: none;
+            border-color: rgba(255,255,255,0.05);
+        }
+
+        /* Feature Cards Layer */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            padding: 0 16px 20px 16px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .feature-card:active { background: rgba(255, 255, 255, 0.08); }
+
+        .card-icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .card-task .card-icon-box { background: rgba(251, 146, 60, 0.1); color: #fb923c; }
+        .card-spin .card-icon-box { background: rgba(168, 85, 247, 0.1); color: #a855f7; }
+
+        .feature-card h3 { font-size: 14px; font-weight: 700; color: #f1f5f9; }
+        .feature-card p { font-size: 11px; color: #94a3b8; }
+
+        /* Bottom Nav Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 75px;
+            background: rgba(6, 11, 23, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 999;
+            padding-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .nav-item i { font-size: 20px; }
+        .nav-item.active { color: #38bdf8; }
+
+        .nav-item.active i {
+            color: #38bdf8;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+        }
+
+        .nav-item-center {
+            position: relative;
+            top: -15px;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+            border: 4px solid #060b17;
+        }
+        .nav-item-center i { font-size: 22px; color: white; }
+
+        /* POPUP MODALS */
+        .premium-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 7, 18, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            padding: 20px;
+        }
+
+        .premium-modal.modal-open { opacity: 1; pointer-events: auto; }
+
+        .modal-content {
+            background: linear-gradient(135deg, #0f172a 0%, #0b1324 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 360px;
+            border-radius: 28px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            transform: scale(0.85);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .premium-modal.modal-open .modal-content { transform: scale(1); }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Spin Wheel */
+        .wheel-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+        }
+
+        .main-wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 6px solid #1e293b;
+            background: conic-gradient(
+                #ff416c 0deg 60deg, 
+                #38bdf8 60deg 120deg, 
+                #a855f7 120deg 180deg, 
+                #fb923c 180deg 240deg, 
+                #10b981 240deg 300deg,
+                #6366f1 300deg 360deg
+            );
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 20px solid #ffffff;
+            z-index: 10;
+        }
+
+        .wheel-center-pin {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            z-index: 5;
+        }
+
+        /* Payment Gateways */
+        .gateway-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; text-align: left; }
+        .gateway-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .gateway-info { display: flex; align-items: center; gap: 12px; }
+        .gateway-logo-box { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
         
-        .tier-badge { padding: 5px 15px; border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.1); }
-        .tier-bronze { background: linear-gradient(to right, #cd7f32, #a0522d); }
-        .tier-silver { background: linear-gradient(to right, #bdc3c7, #2c3e50); }
-        .tier-gold { background: linear-gradient(to right, #ffd700, #b8860b); color: black; box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+        .gw-easypaisa { background: #10b981; color: white; }
+        .gw-jazzcash { background: #dc2626; color: white; }
+        .gw-usdt { background: #26a17b; color: white; }
 
-        .payout-ticker { position: fixed; top: 0; width: 100%; background: rgba(59, 130, 246, 0.15); border-bottom: 1px solid rgba(59,130,246,0.2); padding: 10px 0; overflow: hidden; z-index: 6000; backdrop-filter: blur(10px); }
-        .ticker-move { display: inline-block; white-space: nowrap; animation: tickerMove 35s linear infinite; font-size: 10px; font-weight: 800; color: #60a5fa; }
-        @keyframes tickerMove { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .gateway-name h4 { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+        .gateway-name p { font-size: 10px; color: #64748b; }
 
-        #chat-window { position: fixed; bottom: 100px; left: 20px; right: 20px; height: 460px; z-index: 10000; display: none; flex-direction: column; box-shadow: 0 30px 70px rgba(0,0,0,0.7); }
-        .msg-bubble { max-width: 80%; padding: 12px 16px; margin: 6px; font-size: 11px; }
-        .msg-user { background: #3b82f6; border-radius: 20px 20px 0 20px; align-self: flex-end; color: white; }
-        .msg-admin { background: #2d333b; border-radius: 20px 20px 20px 0; align-self: flex-start; border: 1px solid #444c56; }
+        /* Toast Popup */
+        .reward-toast {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 14px 24px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 11000;
+            font-weight: 700;
+            font-size: 14px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        .reward-toast.toast-show { transform: translateX(-50%) translateY(0); }
 
-        .nav-bar { position: fixed; bottom: 15px; left: 15px; right: 15px; height: 75px; display: flex; justify-content: space-around; align-items: center; z-index: 5000; border-radius: 25px; background: rgba(13, 17, 23, 0.98); border: 1px solid rgba(59, 130, 246, 0.2); flex-direction: row-reverse; }
-        .nav-active { color: #3b82f6; transform: translateY(-5px); }
-
-        #wheel { width: 280px; height: 280px; border-radius: 50%; border: 10px solid #ffd700; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); }
-        .timer-label { background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 3px 8px; border-radius: 8px; font-size: 8px; font-weight: 800; border: 1px solid rgba(239,68,68,0.2); }
+        /* Keyframe Animations */
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        @keyframes shine { 0% { left: -60%; } 15% { left: 130%; } 100% { left: 130%; } }
+        @keyframes floatBubble { 0%, 100% { transform: translateY(0px) scale(1); } 50% { transform: translateY(-8px) scale(1.03); } }
     </style>
 </head>
-<body class="pt-16 pb-32">
+<body>
 
-    <div class="payout-ticker">
-        <div class="ticker-move" id="ticker-content">
-            ⚡ ممبر @Zeeshan_04 نے ابھی ₨ 5,500 کا منافع نکلوایا • ایجنٹ 204 ہیلپ ڈیسک آن لائن ہے • نئے نوڈز دستیاب ہیں! ⚡
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <div id="rewardToast" class="reward-toast">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastMsg">Claim Successful!</span>
+    </div>
+
+    <div class="vestify-header">
+        <div class="brand-row">
+            <div class="logo-block">
+                <div class="logo-icon">V</div>
+                <div class="logo-text">
+                    <h1>VESTIFY</h1>
+                    <p>✨ Premium Investment Portal ✨</p>
+                </div>
+            </div>
+            <div class="live-badge">
+                <div class="live-dot"></div>
+                <span>LIVE</span>
+            </div>
         </div>
     </div>
 
-    <header class="p-6 flex justify-between items-center flex-row-reverse">
-        <div class="flex items-center gap-4 flex-row-reverse">
-            <div class="relative">
-                <img id="user-photo" onclick="handleAdminTap()" class="w-12 h-12 rounded-2xl border-2 border-blue-500/30 cursor-pointer">
-                <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-[#010409] rounded-full"></div>
-            </div>
-            <div class="text-right">
-                <p id="user-name" class="text-[10px] font-black uppercase tracking-tight">Loading...</p>
-                <span id="v-tier" class="tier-badge tier-bronze">Bronze Node</span>
-            </div>
+    <div class="stats-dashboard">
+        <div class="stat-box-left">
+            <p>Total Assets</p>
+            <h2>$<span id="assetDisplay">0.00</span> <span class="fa-solid fa-chevron-down" onclick="openGatewayModal()"></span></h2>
         </div>
-        <div class="flex gap-2">
-            <button onclick="showPage('transfer')" class="w-10 h-10 glass flex items-center justify-center text-green-500"><i class="fa-solid fa-paper-plane text-sm"></i></button>
-            <button onclick="toggleChat()" class="w-10 h-10 glass flex items-center justify-center text-blue-500 relative">
-                <i class="fa-solid fa-comment-dots text-sm"></i>
-                <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+        <div class="stat-box-right">
+            <p>Active Miners</p>
+            <h2 id="minerDisplay">0</h2>
+        </div>
+    </div>
+
+    <div class="info-bar">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <p>Tap on any active glass bubble to instantly claim premium rewards. New machines activate cycles instantly.</p>
+    </div>
+
+    <div class="miner-status-container">
+        <div class="miner-status-title">
+            <i class="fa-solid fa-fire"></i> Active Miners Status & Cycle
+        </div>
+        <div id="timerPill" class="active-miner-pill">
+            <i class="fa-solid fa-hourglass-half"></i> No Active Miners. Lease a setup below!
+        </div>
+    </div>
+
+    <div class="btn-container">
+        <button class="premium-btn" onclick="triggerMainClaim()">
+            <i class="fa-solid fa-bolt" style="margin-right: 6px;"></i> CLAIM ALL ACTIVE REWARDS
+        </button>
+    </div>
+
+    <div class="bubble-zone-title">
+        <span><i class="fa-solid fa-cubes-blur"></i></span> Instant Rewards Mining Grid
+    </div>
+    <div class="bubble-wrapper">
+        <div class="crypto-bubble" onclick="claimBubble(this, 0.15)">
+            <i class="fa-brands fa-bitcoin"></i>
+            <span>$0.15</span>
+        </div>
+        <div class="crypto-bubble" onclick="claimBubble(this, 0.25)">
+            <i class="fa-brands fa-ethereum"></i>
+            <span>$0.25</span>
+        </div>
+        <div class="crypto-bubble" onclick="claimBubble(this, 0.10)">
+            <i class="fa-solid fa-litecoin-sign"></i>
+            <span>$0.10</span>
+        </div>
+        <div class="crypto-bubble" onclick="claimBubble(this, 0.40)">
+            <i class="fa-solid fa-gem"></i>
+            <span>$0.40</span>
+        </div>
+        <div class="crypto-bubble" onclick="claimBubble(this, 0.05)">
+            <i class="fa-solid fa-coins"></i>
+            <span>$0.05</span>
+        </div>
+        <div class="crypto-bubble" onclick="claimBubble(this, 0.30)">
+            <i class="fa-solid fa-bolt-lightning"></i>
+            <span>$0.30</span>
+        </div>
+    </div>
+
+    <div class="feature-grid">
+        <div class="feature-card card-task" onclick="openGatewayModal()">
+            <div class="card-icon-box"><i class="fa-solid fa-wallet"></i></div>
+            <h3>Deposit Plans</h3>
+            <p>Unlock premium models starting from 200 PKR.</p>
+        </div>
+        <div class="feature-card card-spin" onclick="openSpinModal()">
+            <div class="card-icon-box"><i class="fa-solid fa-circle-notch"></i></div>
+            <h3>Lucky Spin</h3>
+            <p>Spin the randomized wheel to win free prizes.</p>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a class="nav-item active">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a class="nav-item" onclick="openSpinModal()">
+            <i class="fa-solid fa-star"></i>
+            <span>Lucky Spin</span>
+        </a>
+        <a class="nav-item nav-item-center" onclick="triggerMainClaim()">
+            <i class="fa-solid fa-circle-play"></i>
+        </a>
+        <a class="nav-item" onclick="openGatewayModal()">
+            <i class="fa-solid fa-wallet"></i>
+            <span>Deposit</span>
+        </a>
+        <a class="nav-item">
+            <i class="fa-solid fa-user"></i>
+            <span>Me</span>
+        </a>
+    </div>
+
+    <div id="spinModal" class="premium-modal">
+        <div class="modal-content">
+            <div class="close-modal-btn" onclick="closeSpinModal()">&times;</div>
+            <h3 style="font-size:18px; font-weight:700; color:white; margin-bottom:6px;">Lucky Spin Wheel</h3>
+            <p style="font-size:12px; color:#94a3b8; margin-bottom:15px;">Test your luck for randomized rewards!</p>
+            
+            <div class="wheel-container">
+                <div class="wheel-pointer"></div>
+                <div class="wheel-center-pin"></div>
+                <div id="spinWheelElement" class="main-wheel"></div>
+            </div>
+
+            <button class="premium-btn" id="spinBtn" onclick="startSpinEngine()" style="padding:12px; font-size:14px; margin-top:10px;">
+                SPIN WHEEL NOW
             </button>
         </div>
-    </header>
-
-    <main id="app-ui">
-        <div id="p-home" class="page active-page">
-            <div class="glass p-8 mb-6 text-center border-blue-500/20">
-                <p class="text-[8px] font-black opacity-40 uppercase tracking-[2px] mb-2">Available Balance</p>
-                <h2 id="v-bal" class="text-5xl font-black italic mb-8 tracking-tighter">₨ 0</h2>
-                <div class="flex gap-3">
-                    <button onclick="showPage('finance')" class="flex-1 bg-blue-600 py-4 rounded-xl font-black text-[10px] uppercase">Deposit</button>
-                    <button onclick="showPage('withdraw')" class="flex-1 glass py-4 rounded-xl font-black text-[10px] uppercase">Withdraw</button>
-                </div>
-            </div>
-
-            <div class="flex gap-2 mb-6">
-                <button id="btn-n" onclick="renderPlans('normal')" class="flex-1 py-3 rounded-xl bg-blue-600 text-[9px] font-black">NORMAL</button>
-                <button id="btn-s" onclick="renderPlans('special')" class="flex-1 py-3 rounded-xl bg-white/5 text-[9px] font-black">VIP OFFERS</button>
-            </div>
-            <div id="plans-grid" class="space-y-4"></div>
-        </div>
-
-        <div id="p-transfer" class="page">
-            <h2 class="text-xl font-black italic mb-6 text-right">رقم منتقل کریں</h2>
-            <div class="glass p-6 space-y-4">
-                <input id="t-user" type="text" placeholder="نام (Receiver Name)" class="w-full bg-black/40 p-4 rounded-xl text-xs border border-white/5 outline-none">
-                <input id="t-amt" type="number" placeholder="رقم" class="w-full bg-black/40 p-4 rounded-xl text-xs border border-white/5 outline-none">
-                <button onclick="executeTransfer()" class="w-full bg-green-600 py-4 rounded-xl font-black text-[10px] uppercase">منتقل کریں</button>
-            </div>
-        </div>
-
-        <div id="p-spin" class="page text-center">
-            <h2 class="text-2xl font-black italic mb-6 uppercase">Golden Spin</h2>
-            <div class="flex justify-center mb-8 relative">
-                <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-red-500 text-3xl z-10"><i class="fa-solid fa-caret-down"></i></div>
-                <img id="wheel" src="https://via.placeholder.com/300?text=SPIN+WHEEL" class="shadow-2xl">
-            </div>
-            <div class="glass p-4 mb-6">
-                <p id="spin-status" class="text-[9px] font-black text-blue-400">CHECKING STATUS...</p>
-            </div>
-            <button id="spin-btn" onclick="executeSpin()" class="w-full bg-blue-600 py-5 rounded-full font-black text-[10px] uppercase">گھمائیں</button>
-        </div>
-
-        <div id="p-history" class="page">
-            <h2 class="text-xl font-black italic mb-6 text-right">ٹرانزیکشن ریکارڈ</h2>
-            <div id="history-list" class="space-y-3"></div>
-        </div>
-
-        <div id="p-finance" class="page">
-            <h2 class="text-xl font-black italic mb-6 text-right">ڈیپازٹ کریں</h2>
-            <div class="glass p-6 space-y-4">
-                <div class="bg-blue-600/10 p-4 rounded-2xl border border-blue-500/20 text-center">
-                    <p class="text-[9px] opacity-50 mb-1">Official EasyPaisa</p>
-                    <p class="text-lg font-black text-blue-400">03379827882</p>
-                </div>
-                <input id="d-amt" type="number" placeholder="رقم" class="w-full bg-black/40 p-4 rounded-xl text-xs border border-white/5 outline-none">
-                <input id="d-tid" type="text" placeholder="Transaction ID (TID)" class="w-full bg-black/40 p-4 rounded-xl text-xs border border-white/5 outline-none">
-                <button onclick="submitTx('Deposit')" class="w-full bg-blue-600 py-4 rounded-xl font-black text-[10px] uppercase">ڈیپازٹ ریکویسٹ بھیجیں</button>
-            </div>
-        </div>
-
-        <div id="p-withdraw" class="page">
-            <h2 class="text-xl font-black italic mb-6 text-right">رقم نکلوائیں</h2>
-            <div class="glass p-6 space-y-4">
-                <input id="w-num" type="text" placeholder="اکاؤنٹ نمبر" class="w-full bg-black/40 p-4 rounded-xl text-xs border border-white/5 outline-none">
-                <input id="w-amt" type="number" placeholder="رقم" class="w-full bg-black/40 p-4 rounded-xl text-xs border border-white/5 outline-none">
-                <input id="w-pin" type="password" placeholder="PIN" class="w-full bg-black/40 p-4 rounded-xl text-center font-black tracking-widest border border-white/5 outline-none">
-                <button onclick="handleWithdraw()" class="w-full bg-white text-black py-4 rounded-xl font-black text-[10px] uppercase">ودرا ریکویسٹ</button>
-            </div>
-        </div>
-
-        <div id="p-team" class="page text-center">
-            <h2 class="text-xl font-black italic mb-6">ٹیم نیٹ ورک</h2>
-            <div class="glass p-6 mb-4">
-                <input id="ref-link" readonly class="w-full bg-black/40 p-3 rounded-lg text-[9px] mb-4 text-center text-blue-400">
-                <button onclick="copyRef()" class="bg-blue-600 px-6 py-2 rounded-lg text-[9px] font-bold">COPY LINK</button>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-                <div class="glass p-4"><p class="text-[8px] opacity-40">TEAM SIZE</p><p id="team-count" class="text-xl font-black">0</p></div>
-                <div class="glass p-4"><p class="text-[8px] opacity-40">COMMISSION</p><p class="text-xl font-black">₨ 0</p></div>
-            </div>
-        </div>
-    </main>
-
-    <nav class="nav-bar">
-        <button onclick="showPage('home')" class="nav-btn" id="nav-home"><i class="fa-solid fa-house"></i></button>
-        <button onclick="showPage('spin')" class="nav-btn" id="nav-spin"><i class="fa-solid fa-spinner"></i></button>
-        <button onclick="showPage('team')" class="nav-btn" id="nav-team"><i class="fa-solid fa-users"></i></button>
-        <button onclick="showPage('history')" class="nav-btn" id="nav-history"><i class="fa-solid fa-list"></i></button>
-    </nav>
-
-    <div id="admin-ui" class="hidden fixed inset-0 z-[20000] bg-[#010409] p-6 overflow-y-auto">
-        <div class="flex justify-between items-center mb-6">
-            <button onclick="closeAdmin()" class="bg-red-500 px-4 py-2 rounded-lg text-[10px] font-bold">CLOSE</button>
-            <h2 class="text-lg font-black">ADMIN PANEL</h2>
-        </div>
-        <div id="adm-tx-list" class="space-y-4"></div>
     </div>
 
-    <div id="chat-window" class="glass overflow-hidden">
-        <div class="p-4 bg-blue-600 flex justify-between items-center">
-            <p class="text-[10px] font-black">AGENT 204 SUPPORT</p>
-            <button onclick="toggleChat()"><i class="fa-solid fa-times"></i></button>
-        </div>
-        <div id="chat-msgs" class="flex-1 overflow-y-auto p-4 flex flex-col gap-2"></div>
-        <div class="p-4 bg-[#1c2128] flex gap-2">
-            <input id="chat-input" type="text" placeholder="Type..." class="flex-1 bg-white/5 p-3 rounded-xl text-xs outline-none">
-            <button onclick="sendMsg()" class="bg-blue-600 px-4 rounded-xl"><i class="fa-solid fa-paper-plane"></i></button>
+    <div id="gatewayModal" class="premium-modal">
+        <div class="modal-content">
+            <div class="close-modal-btn" onclick="closeGatewayModal()">&times;</div>
+            <h3 style="font-size:18px; font-weight:700; color:white; margin-bottom:6px;">Secure Gateway Portal</h3>
+            <p style="font-size:12px; color:#94a3b8;">Select your preferred automatic deposit gateway</p>
+            
+            <div class="gateway-list">
+                <div class="gateway-item" onclick="triggerGatewayAction('EasyPaisa')">
+                    <div class="gateway-info">
+                        <div class="gateway-logo-box gw-easypaisa">EP</div>
+                        <div class="gateway-name">
+                            <h4>EasyPaisa Portal</h4>
+                            <p>Instant Automatic Verification</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="font-size:12px; color:#64748b;"></i>
+                </div>
+
+                <div class="gateway-item" onclick="triggerGatewayAction('JazzCash')">
+                    <div class="gateway-info">
+                        <div class="gateway-logo-box gw-jazzcash">JC</div>
+                        <div class="gateway-name">
+                            <h4>JazzCash Checkout</h4>
+                            <p>Secure Standard Gateway</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="font-size:12px; color:#64748b;"></i>
+                </div>
+
+                <div class="gateway-item" onclick="triggerGatewayAction('USDT TRC20')">
+                    <div class="gateway-info">
+                        <div class="gateway-logo-box gw-usdt"><i class="fa-solid fa-t"></i></div>
+                        <div class="gateway-name">
+                            <h4>USDT (TRC20)</h4>
+                            <p>Global Decentralized Crypto</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="font-size:12px; color:#64748b;"></i>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Firebase Config
-        const firebaseConfig = { 
-            apiKey: "AIzaSyC9ofJ1KxRXHnxilpU9gyI87D3BSOZ9v1g", 
-            authDomain: "vestify-991f2.firebaseapp.com", 
-            projectId: "vestify-991f2", 
-            storageBucket: "vestify-991f2.firebasestorage.app", 
-            messagingSenderId: "799007097733", 
-            appId: "1:799007097733:web:ed3b35b6c4e51dc2e7baec" 
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(), auth = firebase.auth();
-        let userObj = null, currentRot = 0, tapCount = 0;
+        let currentAssets = 0.00;
+        let totalMiners = 0;
+        let countdownTime = 24 * 60 * 60; 
+        let countdownInterval = null;
+        let canSpin = true;
 
-        // Auth Listener
-        auth.onAuthStateChanged(async user => {
-            if(user) {
-                document.getElementById('user-photo').src = user.photoURL;
-                document.getElementById('user-name').innerText = user.displayName;
-                const userRef = db.collection("users").doc(user.displayName);
-                const doc = await userRef.get();
-                if(!doc.exists) {
-                    await userRef.set({ balance: 0, lastSpin: 0, teamCount: 0, walletPin: "1234", lastProfit: Date.now(), role: 'user' });
+        function claimBubble(element, amount) {
+            if (element.classList.contains('bubble-claimed')) return;
+
+            element.classList.add('bubble-claimed');
+            updateAssets(amount);
+            showRewardToast(`Claim Successful! +$${amount.toFixed(2)}`);
+            
+            if (totalMiners === 0) {
+                totalMiners = 1;
+                document.getElementById('minerDisplay').innerText = totalMiners;
+                startMiningCountdown();
+            }
+        }
+
+        function triggerMainClaim() {
+            let availableBubbles = document.querySelectorAll('.crypto-bubble:not(.bubble-claimed)');
+            if (availableBubbles.length === 0) {
+                showRewardToast("No active rewards to claim right now!");
+                return;
+            }
+
+            let gatheredReward = 0;
+            availableBubbles.forEach(bubble => {
+                bubble.classList.add('bubble-claimed');
+                let rewardValue = parseFloat(bubble.querySelector('span').innerText.replace('$', ''));
+                gatheredReward += rewardValue;
+            });
+
+            updateAssets(gatheredReward);
+            showRewardToast(`Total Claim Successful: +$${gatheredReward.toFixed(2)} 🎉`);
+        }
+
+        function updateAssets(val) {
+            currentAssets += val;
+            document.getElementById('assetDisplay').innerText = currentAssets.toFixed(2);
+        }
+
+        function showRewardToast(message) {
+            const toast = document.getElementById('rewardToast');
+            document.getElementById('toastMsg').innerText = message;
+            toast.classList.add('toast-show');
+            setTimeout(() => { toast.classList.remove('toast-show'); }, 3000);
+        }
+
+        function startMiningCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            const timerPill = document.getElementById('timerPill');
+            
+            countdownInterval = setInterval(() => {
+                if (countdownTime <= 0) {
+                    clearInterval(countdownInterval);
+                    timerPill.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#10b981;"></i> Mining Cycle Ready!`;
+                    return;
                 }
-                syncData(user.displayName);
-                renderPlans('normal');
-                loadHistory(user.displayName);
-                loadChat(user.displayName);
-                startFakeTicker();
-                document.getElementById('ref-link').value = `https://u-s-h.github.io/vestify/?ref=${user.displayName.replace(/\s/g, '')}`;
-            } else {
-                auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-            }
-        });
+                countdownTime--;
+                
+                let hrs = Math.floor(countdownTime / 3600);
+                let mins = Math.floor((countdownTime % 3600) / 60);
+                let secs = countdownTime % 60;
 
-        // Real Working Investment Nodes
-        function renderPlans(type) {
-            document.getElementById('btn-n').style.opacity = type === 'normal' ? '1' : '0.5';
-            document.getElementById('btn-s').style.opacity = type === 'special' ? '1' : '0.5';
-            let h = "";
-            let start = type === 'normal' ? 200 : 5000;
-            for(let i=1; i<=10; i++) {
-                let cost = start + (i * (type === 'normal' ? 500 : 3000));
-                let daily = Math.floor(cost * (type === 'normal' ? 0.10 : 0.18));
-                h += `
-                <div class="glass p-5 flex justify-between items-center border-white/5">
-                    <div class="text-right">
-                        <h4 class="text-lg font-black italic">₨ ${cost.toLocaleString()}</h4>
-                        <p class="text-[8px] text-blue-500 font-bold">Daily: ₨ ${daily}</p>
-                    </div>
-                    <button onclick="buyNode(${cost}, ${daily})" class="bg-white text-black px-4 py-2 rounded-lg text-[9px] font-black">INVEST</button>
-                </div>`;
-            }
-            document.getElementById('plans-grid').innerHTML = h;
+                timerPill.innerHTML = `<i class="fa-solid fa-stopwatch" style="color:#38bdf8;"></i> Mining Cycle: ${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+            }, 1000);
         }
 
-        async function buyNode(cost, daily) {
-            if(userObj.balance < cost) return alert("بیلنس کم ہے، پہلے ڈیپازٹ کریں!");
-            if(confirm(`کیا آپ ₨ ${cost} انویسٹ کرنا چاہتے ہیں؟`)) {
-                await db.collection("users").doc(auth.currentUser.displayName).update({
-                    balance: firebase.firestore.FieldValue.increment(-cost)
-                });
-                await db.collection("txs").add({
-                    user: auth.currentUser.displayName,
-                    amount: cost,
-                    type: "Investment",
-                    status: "Approved",
-                    time: Date.now()
-                });
-                alert("انویسٹمنٹ کامیاب! روزانہ منافع آپ کے اکاؤنٹ میں شامل کر دیا جائے گا۔");
+        function openSpinModal() { document.getElementById('spinModal').classList.add('modal-open'); }
+        function closeSpinModal() { document.getElementById('spinModal').classList.remove('modal-open'); }
+        
+        function openGatewayModal() { document.getElementById('gatewayModal').classList.add('modal-open'); }
+        function closeGatewayModal() { document.getElementById('gatewayModal').classList.remove('modal-open'); }
+
+        function startSpinEngine() {
+            if (!canSpin) {
+                showRewardToast("Free entry used up! Try again in next cycle.");
+                return;
             }
-        }
-
-        // Improved Spin Logic
-        async function executeSpin() {
-            const now = Date.now();
-            const last = userObj.lastSpin || 0;
-            const isFree = (now - last) > (24*60*60*1000);
-            const cost = isFree ? 0 : 50;
-
-            if(!isFree && userObj.balance < cost) return alert("اضافی اسپن کے لیے 50 روپے ہونا لازمی ہیں۔");
-
-            const prizes = [2, 5, 10, 50, 100, 5, 10, 2];
-            const pIndex = Math.floor(Math.random()*prizes.length);
-            const winAmt = prizes[pIndex];
+            canSpin = false;
             
-            currentRot += 3600 + (pIndex * 45);
-            document.getElementById('wheel').style.transform = `rotate(${currentRot}deg)`;
-            
-            setTimeout(async () => {
-                await db.collection("users").doc(auth.currentUser.displayName).update({
-                    balance: firebase.firestore.FieldValue.increment(winAmt - cost),
-                    lastSpin: isFree ? now : last
-                });
-                alert(`مبارک ہو! آپ نے ₨ ${winAmt} جیت لیے۔`);
-            }, 5000);
+            const wheel = document.getElementById('spinWheelElement');
+            const randomDegrees = Math.floor(Math.random() * 360) + 1800; 
+            wheel.style.transform = `rotate(${randomDegrees}deg)`;
+
+            const winPrizes = ["$0.50 Bonus", "$1.00 Mega Win", "$0.10 Reward", "Free Miner Node", "$2.00 Platinum Drop", "$0.25 Light Drop"];
+            const selectedPrize = winPrizes[Math.floor(Math.random() * winPrizes.length)];
+
+            setTimeout(() => {
+                closeSpinModal();
+                showRewardToast(`Congratulations! You won: ${selectedPrize}`);
+                if(selectedPrize.includes('$')) {
+                    let winValue = parseFloat(selectedPrize.replace(/[^0-9.]/g, ''));
+                    updateAssets(winValue);
+                } else {
+                    totalMiners += 1;
+                    document.getElementById('minerDisplay').innerText = totalMiners;
+                }
+                setTimeout(() => { wheel.style.transform = 'rotate(0deg)'; canSpin = true; }, 500);
+            }, 4100);
         }
 
-        // Finance Functions
-        async function executeTransfer() {
-            const target = document.getElementById('t-user').value;
-            const amt = Number(document.getElementById('t-amt').value);
-            if(amt > userObj.balance || amt <= 0) return alert("رقم درست نہیں ہے یا بیلنس کم ہے۔");
-            const doc = await db.collection("users").doc(target).get();
-            if(!doc.exists) return alert("موصول کرنے والا یوزر نہیں ملا۔");
-            
-            await db.collection("users").doc(auth.currentUser.displayName).update({ balance: firebase.firestore.FieldValue.increment(-amt) });
-            await db.collection("users").doc(target).update({ balance: firebase.firestore.FieldValue.increment(amt * 0.98) });
-            alert("رقم کامیابی سے منتقل ہو گئی۔");
+        function triggerGatewayAction(gatewayName) {
+            closeGatewayModal();
+            showRewardToast(`${gatewayName} integration active. Processing transaction...`);
         }
-
-        async function submitTx(type) {
-            const amt = Number(document.getElementById('d-amt').value);
-            const tid = document.getElementById('d-tid').value;
-            if(!amt || !tid) return alert("تمام خانے پُر کریں۔");
-            await db.collection("txs").add({ user: auth.currentUser.displayName, amount: amt, tid: tid, type: type, status: "Pending", time: Date.now() });
-            alert("آپ کی درخواست وصول ہو گئی ہے، 30 منٹ میں تصدیق ہو جائے گی۔");
-        }
-
-        async function handleWithdraw() {
-            const pin = document.getElementById('w-pin').value;
-            const amt = Number(document.getElementById('w-amt').value);
-            if(pin !== userObj.walletPin) return alert("غلط والٹ پن!");
-            if(amt > userObj.balance) return alert("بیلنس کم ہے۔");
-            await db.collection("txs").add({ user: auth.currentUser.displayName, amount: amt, type: "Withdrawal", status: "Pending", time: Date.now() });
-            alert("ودرا درخواست بھیج دی گئی۔");
-        }
-
-        // Core UI Functions
-        function syncData(name) {
-            db.collection("users").doc(name).onSnapshot(doc => {
-                userObj = doc.data();
-                document.getElementById('v-bal').innerText = "₨ " + (userObj.balance || 0).toLocaleString();
-                const isFree = (Date.now() - (userObj.lastSpin || 0)) > (24*60*60*1000);
-                document.getElementById('spin-status').innerText = isFree ? "DAILY FREE SPIN AVAILABLE!" : "NEXT SPIN COST: ₨ 50";
-            });
-        }
-
-        function loadHistory(name) {
-            db.collection("txs").where("user", "==", name).orderBy("time", "desc").onSnapshot(s => {
-                let h = ""; s.forEach(doc => {
-                    const d = doc.data();
-                    const color = d.status === "Approved" ? "text-green-500" : "text-yellow-500";
-                    h += `<div class="glass p-4 flex justify-between items-center"><div class="text-right"><p class="text-[9px] font-black">${d.type}</p></div><div class="text-left"><p class="font-black">₨ ${d.amount}</p><p class="text-[7px] ${color}">${d.status}</p></div></div>`;
-                });
-                                document.getElementById('history-list').innerHTML = h || "<p class='text-center opacity-20 text-xs py-10 italic'>کوئی ریکارڈ نہیں ملا</p>";
-            });
-        }
-
-        // --- Chat System ---
-        async function sendMsg() {
-            const m = document.getElementById('chat-input').value;
-            if(!m) return;
-            await db.collection("chats").add({
-                user: auth.currentUser.displayName,
-                text: m,
-                time: Date.now(),
-                photo: auth.currentUser.photoURL
-            });
-            document.getElementById('chat-input').value = "";
-        }
-
-        function loadChat(name) {
-            db.collection("chats").orderBy("time", "asc").limitToLast(30).onSnapshot(s => {
-                let h = "";
-                s.forEach(doc => {
-                    const d = doc.data();
-                    const isMe = d.user === name;
-                    h += `
-                    <div class="flex ${isMe ? 'justify-start' : 'justify-end'} mb-2">
-                        <div class="msg-bubble ${isMe ? 'msg-user' : 'msg-admin'}">
-                            <p class="text-[7px] opacity-60 mb-1">${d.user}</p>
-                            <p class="font-bold">${d.text}</p>
-                        </div>
-                    </div>`;
-                });
-                const chatBox = document.getElementById('chat-msgs');
-                chatBox.innerHTML = h;
-                chatBox.scrollTop = chatBox.scrollHeight;
-            });
-        }
-
-        // --- Admin Controls ---
-        function handleAdminTap() {
-            tapCount++;
-            if(tapCount >= 10) {
-                const key = prompt("Enter Admin Secret Key:");
-                if(key === "net204") loadAdminPanel();
-                tapCount = 0;
-            }
-        }
-
-        function loadAdminPanel() {
-            document.getElementById('admin-ui').classList.remove('hidden');
-            db.collection("txs").where("status", "==", "Pending").onSnapshot(s => {
-                let h = "";
-                s.forEach(doc => {
-                    const d = doc.data();
-                    h += `
-                    <div class="glass p-5 border-blue-500/30">
-                        <div class="flex justify-between mb-4">
-                            <span class="bg-blue-600 px-2 py-1 rounded text-[8px] font-bold">${d.type}</span>
-                            <span class="text-[9px] opacity-50">${d.user}</span>
-                        </div>
-                        <h2 class="text-2xl font-black italic mb-2 text-blue-400">₨ ${d.amount}</h2>
-                        <p class="text-[10px] mb-4 opacity-70 italic">TID: ${d.tid || 'N/A'}</p>
-                        <button onclick="approveTx('${doc.id}', '${d.user}', ${d.amount})" class="w-full bg-green-600 py-3 rounded-xl font-black text-[10px] uppercase">Approve Now</button>
-                    </div>`;
-                });
-                document.getElementById('adm-tx-list').innerHTML = h || "<p class='text-center opacity-40 py-20'>تمام درخواستیں مکمل ہیں!</p>";
-            });
-        }
-
-        async function approveTx(id, userName, amount) {
-            try {
-                await db.collection("txs").doc(id).update({ status: "Approved" });
-                await db.collection("users").doc(userName).update({
-                    balance: firebase.firestore.FieldValue.increment(amount)
-                });
-                alert("درخواست منظور کر لی گئی ہے!");
-            } catch(e) {
-                alert("Error: " + e.message);
-            }
-        }
-
-        // --- Helper Functions ---
-        function startFakeTicker() {
-            const names = ["Zeeshan", "Ali_Khan", "Sana_99", "Akram_Pro", "Mir_Astore", "Hamza"];
-            const amounts = ["2,000", "5,500", "12,000", "800", "25,000"];
-            setInterval(() => {
-                const name = names[Math.floor(Math.random()*names.length)];
-                const amt = amounts[Math.floor(Math.random()*amounts.length)];
-                document.getElementById('ticker-content').innerText = `⚡ ممبر @${name} نے ابھی ₨ ${amt} کا منافع نکلوایا • ایجنٹ 204 ہیلپ ڈیسک آن لائن ہے • نئے نوڈز دستیاب ہیں! ⚡`;
-            }, 15000);
-        }
-
-        function showPage(p) {
-            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
-            document.getElementById('p-' + p).classList.add('active-page');
-            
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('nav-active'));
-            const activeNav = document.getElementById('nav-' + p);
-            if(activeNav) activeNav.classList.add('nav-active');
-            window.scrollTo(0,0);
-        }
-
-        function toggleChat() {
-            const win = document.getElementById('chat-window');
-            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
-        }
-
-        function closeAdmin() { document.getElementById('admin-ui').classList.add('hidden'); }
-
-        function copyRef() {
-            const copyText = document.getElementById("ref-link");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(copyText.value);
-            alert("آپ کا ریفرل لنک کاپی ہو گیا ہے!");
-        }
-
     </script>
 </body>
 </html>
