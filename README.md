@@ -918,6 +918,149 @@
             setInterval(() => {
                 const clock = new Date();
                 const h = 23 - clock.getHours(); const m = 59 - clock.getMinutes(); const s = 59 - clock.getSeconds();
+                document.getElementById('countdownTimerfunction registerAdminLogoTap() {
+            adminLogoTapCountTracker++;
+            if(adminLogoTapCountTracker >= 5) {
+                adminLogoTapCountTracker = 0;
+                document.getElementById('secretAdminScreen').style.display = 'flex';
+                triggerToastDisplay("Bypassing UI... Admin Protocol Detected.");
+            }
+        }
+        
+        function closeAdminPortal() {
+            document.getElementById('secretAdminScreen').style.display = 'none';
+            document.getElementById('adminContentBody').style.display = 'none';
+            document.getElementById('adminSecretKeyField').value = "";
+        }
+
+        function authenticateAdminSystemKey() {
+            const key = document.getElementById('adminSecretKeyField').value;
+            if(key === "vestify786") {
+                document.getElementById('adminContentBody').style.display = 'block';
+                triggerToastDisplay("Access Granted. Cluster Overrides Activated.");
+                loadAdminPendingDepositsArray();
+                loadAdminPendingWithdrawalsArray();
+            } else {
+                triggerToastDisplay("Invalid System Security Token Variable Key!");
+            }
+        }
+
+        function switchAdminSubView(mode) {
+            document.getElementById('adminTabDep').classList.toggle('active', mode === 'deposits');
+            document.getElementById('adminTabWith').classList.toggle('active', mode === 'withdrawals');
+            document.getElementById('adminDepositsSection').style.display = mode === 'deposits' ? 'block' : 'none';
+            document.getElementById('adminWithdrawalsSection').style.display = mode === 'withdrawals' ? 'block' : 'none';
+        }
+
+        // --- FULL DYNAMIC ADMIN OVERRIDE ENGINE FUNCTIONS ---
+
+        function loadAdminPendingDepositsArray() {
+            db.collection("deposits").where("status", "==", "pending").onSnapshot(snap => {
+                let html = "";
+                if(snap.empty) { html = "<div style='color:#64748b; padding:10px;'>No pending deposits inside pools.</div>"; }
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:14px; border:1px solid rgba(255,255,255,0.05); margin-bottom:8px;">
+                        <p>Client UID: <b>${d.userId.substring(0,8)}...</b></p>
+                        <p>Amount: <b style="color:#10b981;">Rs. ${d.amount}</b> | Channel: ${d.gatewayChannel}</p>
+                        <p>TID Ref: <span style="color:#38bdf8;">${d.transactionId}</span></p>
+                        <div style="display:flex; gap:8px; margin-top:8px;">
+                            <button class="buy-plan-btn" style="flex:1; padding:6px; font-size:11px; background:#10b981; box-shadow:none;" onclick="approveDepositFromAdmin('${doc.id}', '${d.userId}', ${d.amount})">Approve</button>
+                            <button class="buy-plan-btn" style="flex:1; padding:6px; font-size:11px; background:#ef4444; box-shadow:none;" onclick="rejectDepositFromAdmin('${doc.id}')">Reject</button>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('adminPendingDepositsTrack').innerHTML = html;
+            });
+        }
+
+        function approveDepositFromAdmin(docId, targetUid, baseAmount) {
+            const calculatedTotalGrant = baseAmount + (baseAmount * 0.08);
+            const userRef = db.collection("users").doc(targetUid);
+            
+            db.runTransaction(transaction => {
+                return transaction.get(userRef).then(userDoc => {
+                    if (!userDoc.exists) { throw "User block node target missing."; }
+                    let currentBal = userDoc.data().balance || 0;
+                    transaction.update(userRef, { 
+                        balance: currentBal + calculatedTotalGrant,
+                        isActiveDepositor: true
+                    });
+                    transaction.update(db.collection("deposits").doc(docId), { status: "approved" });
+                });
+            }).then(() => {
+                triggerToastDisplay("Deposit Approved safely! 😘");
+            }).catch(err => triggerToastDisplay("Error: " + err));
+        }
+
+        function rejectDepositFromAdmin(docId) {
+            db.collection("deposits").doc(docId).update({ status: "rejected" }).then(() => {
+                triggerToastDisplay("Fake TID Deposit Rejected! 🚫");
+            }).catch(err => triggerToastDisplay(err));
+        }
+
+        function loadAdminPendingWithdrawalsArray() {
+            db.collection("withdrawals").where("status", "==", "pending").onSnapshot(snap => {
+                let html = "";
+                if(snap.empty) { html = "<div style='color:#64748b; padding:10px;'>No pending payout cashouts recorded.</div>"; }
+                snap.forEach(doc => {
+                    const w = doc.data();
+                    html += `<div style="background:rgba(255,255,255,0.02); padding:12px; border-radius:14px; border:1px solid rgba(255,255,255,0.05); margin-bottom:8px;">
+                        <p>Client UID: <b>${w.userId.substring(0,8)}...</b></p>
+                        <p>Payout Target: <b style="color:#38bdf8;">Rs. ${w.amount}</b></p>
+                        <p>Destination: <b>${w.title} (${w.targetNo})</b></p>
+                        <div style="display:flex; gap:8px; margin-top:8px;">
+                            <button class="buy-plan-btn" style="flex:1; padding:6px; font-size:11px; background:#3b82f6; box-shadow:none;" onclick="approveWithdrawalFromAdmin('${doc.id}')">Approve</button>
+                            <button class="buy-plan-btn" style="flex:1; padding:6px; font-size:11px; background:#ef4444; box-shadow:none;" onclick="rejectWithdrawalFromAdmin('${doc.id}', '${w.userId}', ${w.amount})">Reject & Refund</button>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('adminPendingWithdrawalsTrack').innerHTML = html;
+            });
+        }
+
+        function approveWithdrawalFromAdmin(docId) {
+            db.collection("withdrawals").doc(docId).update({ status: "approved" }).then(() => {
+                triggerToastDisplay("Withdrawal dispatch success! 💸");
+            }).catch(err => triggerToastDisplay(err));
+        }
+
+        function rejectWithdrawalFromAdmin(docId, targetUid, refundAmount) {
+            const userRef = db.collection("users").doc(targetUid);
+            
+            db.runTransaction(transaction => {
+                return transaction.get(userRef).then(userDoc => {
+                    if (!userDoc.exists) { throw "Target user missing."; }
+                    let currentBal = userDoc.data().balance || 0;
+                    transaction.update(userRef, { balance: currentBal + refundAmount });
+                    transaction.update(db.collection("withdrawals").doc(docId), { status: "rejected" });
+                });
+            }).then(() => {
+                triggerToastDisplay("Withdrawal Rejected & Capital Safely Refunded! 🎯");
+            }).catch(err => triggerToastDisplay("Error: " + err));
+        }
+
+        // --- GLOBAL CORE UI FUNCTIONS ---
+
+        function selectDepositGatewayChannel(channel) {
+            activeGatewayChannel = channel;
+            document.querySelectorAll('#depositModal .action-btn').forEach(b => b.style.borderColor = "rgba(255,255,255,0.05)");
+            
+            if(channel === "EasyPaisa") document.getElementById('chkEasyPaisa').style.borderColor = "#10b981";
+            if(channel === "JazzCash") document.getElementById('chkJazzCash').style.borderColor = "#eab308";
+            if(channel === "USDT") document.getElementById('chkUSDT').style.borderColor = "#26a17b";
+
+            const configurationNode = paymentGatewayMerchantConfig[channel];
+            document.getElementById('lblAccountTitleType').innerText = configurationNode.title;
+            document.getElementById('txtMerchantAccountNo').innerText = configurationNode.number;
+            
+            updateDepositCalculations();
+        }
+
+        function initializeCountdownClockTicker() {
+            setInterval(() => {
+                const clock = new Date();
+                const h = 23 - clock.getHours(); const m = 59 - clock.getMinutes(); const s = 59 - clock.getSeconds();
                 document.getElementById('countdownTimerClock').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             }, 1000);
         }
