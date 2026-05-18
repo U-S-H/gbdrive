@@ -141,7 +141,7 @@
     </div>
 
     <div id="secretAdminScreen" style="display: none;">
-        <div class="admin-container" style="max-width: 450px;">
+        <div class="admin-container" style="max-width: 450px; background: #070d19; border: 1px solid rgba(255,255,255,0.1);">
             <div class="close-modal-btn" onclick="closeAdminPortal()" style="position: static; text-align: right; margin-bottom: 10px;">&times; Close Admin</div>
             <h3 style="color: #ff416c; font-weight: 800; margin-bottom: 5px;"><i class="fa-solid fa-user-shield"></i> Secret Admin Panel</h3>
             <p style="font-size: 11px; color: #64748b; margin-bottom: 20px;">Manual Verification & System Override Engine</p>
@@ -149,9 +149,21 @@
             <input type="password" id="adminSecretKeyField" class="modal-input" placeholder="Enter System Admin Secret Passkey" style="margin-top:0;">
             <button class="buy-plan-btn" onclick="authenticateAdminSystemKey()" style="width:100%; margin:12px 0; padding:10px;">Verify Superuser Auth</button>
             
-            <div id="adminContentBody" style="display: none; margin-top: 20px; text-align: left; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                <h5 style="font-size: 13px; color: #38bdf8; margin-bottom: 10px;">Pending Client Deposits</h5>
-                <div id="adminPendingDepositsTrack" style="font-size: 12px; display: flex; flex-direction: column; gap: 8px;">Awaiting verification bypass...</div>
+            <div id="adminContentBody" style="display: none; margin-top: 20px; text-align: left; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; max-height: 400px; overflow-y: auto;">
+                <div class="auth-tabs" style="margin-bottom: 15px;">
+                    <button id="adminTabDep" class="auth-tab-btn active" onclick="switchAdminSubView('deposits')">Deposits</button>
+                    <button id="adminTabWith" class="auth-tab-btn" onclick="switchAdminSubView('withdrawals')">Withdrawals</button>
+                </div>
+
+                <div id="adminDepositsSection">
+                    <h5 style="font-size: 13px; color: #38bdf8; margin-bottom: 10px;">Pending Client Deposits</h5>
+                    <div id="adminPendingDepositsTrack" style="font-size: 12px; display: flex; flex-direction: column; gap: 8px;">Awaiting verification bypass...</div>
+                </div>
+
+                <div id="adminWithdrawalsSection" style="display: none;">
+                    <h5 style="font-size: 13px; color: #eab308; margin-bottom: 10px;">Pending Client Withdrawals</h5>
+                    <div id="adminPendingWithdrawalsTrack" style="font-size: 12px; display: flex; flex-direction: column; gap: 8px;">Awaiting verification bypass...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -611,15 +623,12 @@
 
             if (!lastSyncDate) return;
 
-            // Calculate precise passed days decimal loops
             const elapsedMilliseconds = currentTime - lastSyncDate;
             const absolutePassedDays = Math.floor(elapsedMilliseconds / (24 * 60 * 60 * 1000));
 
-            // Run process only if at least 1 full day has passed
             if (absolutePassedDays >= 1) {
                 db.collection("leases").where("userId", "==", uid).get().then(snapshot => {
                     if (snapshot.empty) {
-                        // Plan list safe updating without active nodes
                         db.collection("users").doc(uid).update({
                             lastYieldSyncTimestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
@@ -673,7 +682,6 @@
                 isActiveDepositor: true
             });
 
-            // Save active plan to leases collection for tracking accuracy
             const newLeaseRef = db.collection("leases").doc();
             operationalBatch.set(newLeaseRef, {
                 userId: currentUserId,
@@ -731,21 +739,6 @@
             } else {
                 document.getElementById('txtPayableExactAmount').innerText = "Rs. " + amt.toLocaleString();
             }
-        }
-
-        function selectDepositGatewayChannel(channel) {
-            activeGatewayChannel = channel;
-            document.querySelectorAll('#depositModal .action-btn').forEach(b => b.style.borderColor = "rgba(255,255,255,0.05)");
-            
-            if(channel === "EasyPaisa") document.getElementById('chkEasyPaisa').style.borderColor = "#10b981";
-            if(channel === "JazzCash") document.getElementById('chkJazzCash').style.borderColor = "#eab308";
-            if(channel === "USDT") document.getElementById('chkUSDT').style.borderColor = "#26a17b";
-
-            const configurationNode = paymentGatewayMerchantConfig[channel];
-            document.getElementById('lblAccountTitleType').innerText = configurationNode.title;
-            document.getElementById('txtMerchantAccountNo').innerText = configurationNode.number;
-            
-            updateDepositCalculations();
         }
 
         function copyMerchantAccountToken() {
@@ -818,7 +811,13 @@
                     userId: currentUserId, title: title, targetNo: targetNo, amount: amt, status: "pending",
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-            }).then(() => { closeModal('withdrawModal'); triggerToastDisplay("Withdraw transaction buffered into queue."); });
+            }).then(() => { 
+                closeModal('withdrawModal'); 
+                triggerToastDisplay("Withdraw transaction buffered into queue."); 
+                document.getElementById('withdrawTitle').value = "";
+                document.getElementById('withdrawNumber').value = "";
+                document.getElementById('withdrawAmount').value = "";
+            });
         }
 
         function triggerLuckyCoreSpin() {
@@ -842,83 +841,29 @@
         }
 
         function syncUserLedgerTracks() {
-            db.collection("deposits").where("userId", "==", currentUserId).onSnapshot(snap => {
-                let html = "";
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    html += `<div class="history-card"><div><b>Rs. ${d.amount}</b><p>${d.transactionId} (${d.gatewayChannel})</p></div><span style="font-size:11px; font-weight:700; color: ${d.status === 'approved' ? '#10b981' : '#eab308'};">${d.status.toUpperCase()}</span></div>`;
+            // Merge both deposits and withdrawals into dynamic dashboard ledger overview
+            db.collection("deposits").where("userId", "==", currentUserId).onSnapshot(depSnap => {
+                db.collection("withdrawals").where("userId", "==", currentUserId).onSnapshot(withSnap => {
+                    let html = "";
+                    
+                    depSnap.forEach(doc => {
+                        const d = doc.data();
+                        let colorStr = d.status === 'approved' ? '#10b981' : (d.status === 'rejected' ? '#ef4444' : '#eab308');
+                        html += `<div class="history-card"><div><b>Rs. ${d.amount}</b><p>${d.transactionId || 'INBOUND'} (${d.gatewayChannel})</p></div><span style="font-size:11px; font-weight:700; color: ${colorStr};">${d.status.toUpperCase()}</span></div>`;
+                    });
+
+                    withSnap.forEach(doc => {
+                        const w = doc.data();
+                        let colorStr = w.status === 'approved' ? '#10b981' : (w.status === 'rejected' ? '#ef4444' : '#eab308');
+                        html += `<div class="history-card"><div><b style="color:#ef4444;">-Rs. ${w.amount}</b><p>${w.targetNo} (${w.title})</p></div><span style="font-size:11px; font-weight:700; color: ${colorStr};">WITHDRAW ${w.status.toUpperCase()}</span></div>`;
+                    });
+
+                    document.getElementById('userHistoryRecordsList').innerHTML = html || "Financial tracks void inside data ledger loops.";
                 });
-                document.getElementById('userHistoryRecordsList').innerHTML = html || "Financial tracks void inside data ledger loops.";
             });
         }
 
         function registerAdminLogoTap() {
-            adminLogoTapCountTracker++;
-            if(adminLogoTapCountTracker >= 5) {
-                adminLogoTapCountTracker = 0;
-                document.getElementById('secretAdminScreen').style.display = 'flex';
-                triggerToastDisplay("Bypassing UI... Admin Protocol Detected.");
-            }
-        }
-        
-        function closeAdminPortal() {
-            document.getElementById('secretAdminScreen').style.display = 'none';
-            document.getElementById('adminContentBody').style.display = 'none';
-            document.getElementById('adminSecretKeyField').value = "";
-        }
-
-        function authenticateAdminSystemKey() {
-            const key = document.getElementById('adminSecretKeyField').value;
-            if(key === "vestify786") {
-                document.getElementById('adminContentBody').style.display = 'block';
-                triggerToastDisplay("Access Granted. Cluster Overrides Activated.");
-                loadAdminPendingDepositsArray();
-            } else {
-                triggerToastDisplay("Invalid System Security Token Variable Key!");
-            }
-        }
-
-        function loadAdminPendingDepositsArray() {
-            db.collection("deposits").where("status", "==", "pending").onSnapshot(snap => {
-                let html = "";
-                if(snap.empty) { html = "<div>No pending client deposits recorded in node pools.</div>"; }
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    html += `<div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.05); margin-bottom:6px;">
-                        <p>User UID: <b>${d.userId.substring(0,8)}...</b></p>
-                        <p>Amount: <b style="color:#10b981;">Rs. ${d.amount}</b> | Channel: ${d.gatewayChannel}</p>
-                        <p>TID Ref: <span style="color:#38bdf8;">${d.transactionId}</span></p>
-                        <button class="buy-plan-btn" style="padding:4px 10px; font-size:10px; margin-top:5px; background:#10b981;" onclick="approveDepositFromAdmin('${doc.id}', '${d.userId}', ${d.amount})">Approve Node</button>
-                    </div>`;
-                });
-                document.getElementById('adminPendingDepositsTrack').innerHTML = html;
-            });
-        }
-
-        function approveDepositFromAdmin(docId, targetUid, baseAmount) {
-            const calculatedTotalGrant = baseAmount + (baseAmount * 0.08);
-            const userRef = db.collection("users").doc(targetUid);
-            
-            db.runTransaction(transaction => {
-                return transaction.get(userRef).then(userDoc => {
-                    if (!userDoc.exists) { throw "User block node target missing."; }
-                    let currentBal = userDoc.data().balance || 0;
-                    transaction.update(userRef, { 
-                        balance: currentBal + calculatedTotalGrant,
-                        isActiveDepositor: true
-                    });
-                    transaction.update(db.collection("deposits").doc(docId), { status: "approved" });
-                });
-            }).then(() => {
-                triggerToastDisplay("Deposit Approved! Balances injected safely.");
-            }).catch(err => triggerToastDisplay("Error: " + err));
-        }
-
-        function initializeCountdownClockTicker() {
-            setInterval(() => {
-                const clock = new Date();
-                const h = 23 - clock.getHours(); const m = 59 - clock.getMinutes(); const s = 59 - clock.getSeconds();
-                document.getElementById('countdownTimerfunction registerAdminLogoTap() {
             adminLogoTapCountTracker++;
             if(adminLogoTapCountTracker >= 5) {
                 adminLogoTapCountTracker = 0;
