@@ -736,14 +736,31 @@
             setTimeout(() => t.classList.remove('toast-show'), 2500);
         }
 
-        /* SECRET ADMINISTRATOR ENGINE SYSTEM INTERFACE TRACKER */
+        /* SECRET ADMINISTRATOR ENGINE SYSTEM INTERFACE TRACKER WITH KEY VALIDATION */
         function registerAdminLogoTap() {
             logoTapTrackerCounter++;
             if(logoTapTrackerCounter >= 5) {
                 logoTapTrackerCounter = 0;
-                document.getElementById('secretAdminScreen').style.display = 'flex';
-                triggerToastDisplay("Admin Node Override Verification Stream Active!");
+                document.getElementById('secretKeyScreen').style.display = 'flex';
+                triggerToastDisplay("Admin Override Triggered! Enter Key Stream.");
             }
+        }
+
+        function verifyAdminSecretPassKey() {
+            const enteredKey = document.getElementById('adminSecretKeyInput').value.trim();
+            if (enteredKey === "net204") {
+                document.getElementById('secretKeyScreen').style.display = 'none';
+                document.getElementById('secretAdminScreen').style.display = 'flex';
+                document.getElementById('adminSecretKeyInput').value = "";
+                triggerToastDisplay("Access Granted! Admin Core Modules Unlocked.");
+            } else {
+                triggerToastDisplay("Invalid Protocol Token Key. Access Denied!");
+            }
+        }
+
+        function closeSecretKeyScreen() {
+            document.getElementById('secretKeyScreen').style.display = 'none';
+            document.getElementById('adminSecretKeyInput').value = "";
         }
 
         function closeAdminPanel() {
