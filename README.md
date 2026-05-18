@@ -53,7 +53,7 @@
         .plans-grid { display: none; flex-direction: column; gap: 12px; padding: 0 16px; }
         .plans-grid.active-grid { display: flex; }
         
-        /* Premium Node Card Design with Free Icons */
+        /* Premium Node Card Design */
         .plan-card { background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 14px; position: relative; overflow: hidden; }
         .plan-card::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #38bdf8; }
         .plan-card.special-border::after { background: #eab308; }
@@ -81,7 +81,7 @@
         .spin-box-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 25px 20px; border-radius: 24px; text-align: center; margin-top: 15px; position: relative; background: linear-gradient(180deg, rgba(255,65,108,0.03) 0%, rgba(4,8,24,0) 100%); }
         .wheel-outer { width: 150px; height: 150px; border: 4px dashed #ff416c; border-radius: 50%; margin: 15px auto; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: white; background: rgba(255,65,108,0.05); text-shadow: 0 0 10px #ff416c; box-shadow: inset 0 0 15px rgba(255,65,108,0.2); transition: transform 3s cubic-bezier(0.1, 0.8, 0.1, 1); }
 
-        /* Premium Info Sections (Company, Policy, FAQ) */
+        /* Premium Info Sections */
         .info-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 16px; margin-bottom: 12px; }
         .info-card h4 { font-size: 14px; color: #38bdf8; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
         .info-card p { font-size: 12px; color: #94a3b8; line-height: 1.6; }
@@ -91,7 +91,7 @@
         .faq-q { font-size: 13px; font-weight: 700; color: white; display: flex; justify-content: space-between; align-items: center; }
         .faq-a { font-size: 12px; color: #64748b; margin-top: 6px; display: none; line-height: 1.5; }
 
-        /* Persistent Bottom Command Dock */
+        /* Bottom Command Dock */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: rgba(4, 8, 20, 0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 999; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #64748b; text-decoration: none; font-size: 10px; font-weight: 600; cursor: pointer; transition: color 0.2s; }
         .nav-item.active { color: #38bdf8; }
@@ -117,7 +117,7 @@
 
     <div id="authScreen">
         <div class="auth-container">
-            <h2 style="font-weight: 800; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px;">RESTIFY PRO</h2>
+            <h2 style="font-weight: 800; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px;">VESTIFY PRO</h2>
             <p style="font-size: 11px; color: #64748b; margin-bottom: 20px;">Quantum Cryptographic Cloud Mining Core</p>
             
             <div class="auth-tabs">
@@ -218,7 +218,7 @@
             </div>
             <div class="plan-card">
                 <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=60" class="plan-node-img" alt="Node Array">
-                <div class="plan-details"><h4>Pod Alpha-6 <i class="fa-solid fa-circle-check" style="color:#38bdf8; font-size:10px;"></i></h4><p>Cost: <b>Rs. 2,000</b> | Yield: <span>Rs. 185/Day</span>Rs. 185/Day</span></p></div>
+                <div class="plan-details"><h4>Pod Alpha-6 <i class="fa-solid fa-circle-check" style="color:#38bdf8; font-size:10px;"></i></h4><p>Cost: <b>Rs. 2,000</b> | Yield: <span>Rs. 185/Day</span></p></div>
                 <button class="buy-plan-btn" onclick="leaseHardwareNode('Pod Alpha-6', 2000, 185)">Lease</button>
             </div>
             <div class="plan-card">
@@ -599,42 +599,93 @@
                     document.getElementById('lblDisplayInviteLink').innerText = `${rootOriginLink}?ref=${userCustomUsernameToken}`;
                     
                     calculateNetworkHierarchyAnalytics(userCustomUsernameToken);
-                    
-                    // AUTOMATED DAILY PROFIT CHECKER NODE LOOP
-                    checkAndApplyLazyYieldSync(currentUserId, d);
+                    executeProfessionalLazyYieldSync(currentUserId, d);
                 }
             });
         }
 
-        // BACKEND REALTIME PROFIT SYSTEM BYPASS ENGINE
-        function checkAndApplyLazyYieldSync(uid, userData) {
-            if (!userData.minersCount || userData.minersCount <= 0) return;
-            
+        // 100% ACCURATE MULTI-DAY LAZY PROFIT CALCULATION ENGINE
+        function executeProfessionalLazyYieldSync(uid, userData) {
             const lastSyncDate = userData.lastYieldSyncTimestamp ? userData.lastYieldSyncTimestamp.toDate() : null;
             const currentTime = new Date();
 
-            // Agar last check 24 ghante pehle ka ho
-            if (!lastSyncDate || (currentTime - lastSyncDate) >= 24 * 60 * 60 * 1000) {
-                // Default profit calculation metrics (Rs. 45 Per leased sub-station machine)
-                let computedProfitNode = userData.minersCount * 45; 
+            if (!lastSyncDate) return;
 
-                db.collection("users").doc(uid).update({
-                    balance: firebase.firestore.FieldValue.increment(computedProfitNode),
-                    lastYieldSyncTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    hasSpunToday: false // Reset spin core wheel variables automatically
-                }).then(() => {
-                    // Inject logging receipt into transaction collection database
-                    db.collection("deposits").add({
-                        userId: uid,
-                        amount: computedProfitNode,
-                        transactionId: "YIELD-" + Math.floor(100000 + Math.random() * 900000),
-                        gatewayChannel: "Hardware Cloud Yield Sync",
-                        status: "approved",
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            // Calculate precise passed days decimal loops
+            const elapsedMilliseconds = currentTime - lastSyncDate;
+            const absolutePassedDays = Math.floor(elapsedMilliseconds / (24 * 60 * 60 * 1000));
+
+            // Run process only if at least 1 full day has passed
+            if (absolutePassedDays >= 1) {
+                db.collection("leases").where("userId", "==", uid).get().then(snapshot => {
+                    if (snapshot.empty) {
+                        // Plan list safe updating without active nodes
+                        db.collection("users").doc(uid).update({
+                            lastYieldSyncTimestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        return;
+                    }
+
+                    let cumulativeProfitPerDay = 0;
+                    snapshot.forEach(leaseDoc => {
+                        cumulativeProfitPerDay += (leaseDoc.data().dailyYield || 0);
                     });
-                    triggerToastDisplay(`+Rs. ${computedProfitNode} Automatic Daily Profit Credited! ⚡`);
+
+                    let globalCalculatedProfitToken = cumulativeProfitPerDay * absolutePassedDays;
+
+                    if (globalCalculatedProfitToken > 0) {
+                        const operationalBatch = db.batch();
+                        const userRef = db.collection("users").doc(uid);
+
+                        operationalBatch.update(userRef, {
+                            balance: firebase.firestore.FieldValue.increment(globalCalculatedProfitToken),
+                            lastYieldSyncTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                            hasSpunToday: false
+                        });
+
+                        const logRef = db.collection("deposits").doc();
+                        operationalBatch.set(logRef, {
+                            userId: uid,
+                            amount: globalCalculatedProfitToken,
+                            transactionId: "YIELD-" + Math.floor(100000 + Math.random() * 900000),
+                            gatewayChannel: `Cloud Yield (${absolutePassedDays} Days Sync)`,
+                            status: "approved",
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+
+                        operationalBatch.commit().then(() => {
+                            triggerToastDisplay(`+Rs. ${globalCalculatedProfitToken} Automatic Profit Credited for ${absolutePassedDays} days! ⚡`);
+                        });
+                    }
                 });
             }
+        }
+
+        function leaseHardwareNode(name, price, dailyProfitValue) {
+            if(userCurrentBalance < price) { triggerToastDisplay("Balance capital threshold exceeded."); return; }
+            
+            const operationalBatch = db.batch();
+            const userRef = db.collection("users").doc(currentUserId);
+            
+            operationalBatch.update(userRef, {
+                balance: userCurrentBalance - price, 
+                minersCount: totalActiveCoresCount + 1,
+                isActiveDepositor: true
+            });
+
+            // Save active plan to leases collection for tracking accuracy
+            const newLeaseRef = db.collection("leases").doc();
+            operationalBatch.set(newLeaseRef, {
+                userId: currentUserId,
+                planName: name,
+                cost: price,
+                dailyYield: dailyProfitValue,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            operationalBatch.commit().then(() => {
+                triggerToastDisplay(`Successfully leased ${name}! Node operations are live.`);
+            }).catch(err => triggerToastDisplay(err));
         }
 
         function calculateNetworkHierarchyAnalytics(usernameToken) {
@@ -755,16 +806,6 @@
             }).catch(err => triggerToastDisplay(err));
         }
 
-        function leaseHardwareNode(name, price, dailyProfitValue) {
-            if(userCurrentBalance < price) { triggerToastDisplay("Balance capital threshold exceeded."); return; }
-            db.collection("users").doc(currentUserId).update({
-                balance: userCurrentBalance - price, minersCount: totalActiveCoresCount + 1,
-                isActiveDepositor: true
-            }).then(() => {
-                triggerToastDisplay(`Successfully leased ${name}! Node operations are live.`);
-            });
-        }
-
         function dispatchWithdrawalToCloud() {
             const title = document.getElementById('withdrawTitle').value.trim();
             const targetNo = document.getElementById('withdrawNumber').value.trim();
@@ -811,7 +852,6 @@
             });
         }
 
-        /* SECRET ADMIN SYSTEM OPERATIONS LOOP */
         function registerAdminLogoTap() {
             adminLogoTapCountTracker++;
             if(adminLogoTapCountTracker >= 5) {
