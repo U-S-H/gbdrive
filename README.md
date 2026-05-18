@@ -117,7 +117,7 @@
 
     <div id="authScreen">
         <div class="auth-container">
-            <h2 style="font-weight: 800; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px;">VESTIFY PRO</h2>
+            <h2 style="font-weight: 800; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px;">RESTIFY PRO</h2>
             <p style="font-size: 11px; color: #64748b; margin-bottom: 20px;">Quantum Cryptographic Cloud Mining Core</p>
             
             <div class="auth-tabs">
@@ -218,7 +218,7 @@
             </div>
             <div class="plan-card">
                 <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=60" class="plan-node-img" alt="Node Array">
-                <div class="plan-details"><h4>Pod Alpha-6 <i class="fa-solid fa-circle-check" style="color:#38bdf8; font-size:10px;"></i></h4><p>Cost: <b>Rs. 2,000</b> | Yield: <span>Rs. 185/Day</span></p></div>
+                <div class="plan-details"><h4>Pod Alpha-6 <i class="fa-solid fa-circle-check" style="color:#38bdf8; font-size:10px;"></i></h4><p>Cost: <b>Rs. 2,000</b> | Yield: <span>Rs. 185/Day</span>Rs. 185/Day</span></p></div>
                 <button class="buy-plan-btn" onclick="leaseHardwareNode('Pod Alpha-6', 2000, 185)">Lease</button>
             </div>
             <div class="plan-card">
@@ -537,7 +537,8 @@
                         hasSpunToday: false,
                         referredBy: sponsorCode || "none",
                         isActiveDepositor: false,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastYieldSyncTimestamp: firebase.firestore.FieldValue.serverTimestamp()
                     };
                     return db.collection("users").doc(cred.user.uid).set(userPayload);
                 }).then(() => {
@@ -571,7 +572,8 @@
                             hasSpunToday: false,
                             referredBy: sponsorCode,
                             isActiveDepositor: false,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastYieldSyncTimestamp: firebase.firestore.FieldValue.serverTimestamp()
                         }).then(() => triggerToastDisplay("Google Node Linked & Profile Saved!"));
                     } else {
                         triggerToastDisplay("Google Session Key Match Found!");
@@ -597,8 +599,42 @@
                     document.getElementById('lblDisplayInviteLink').innerText = `${rootOriginLink}?ref=${userCustomUsernameToken}`;
                     
                     calculateNetworkHierarchyAnalytics(userCustomUsernameToken);
+                    
+                    // AUTOMATED DAILY PROFIT CHECKER NODE LOOP
+                    checkAndApplyLazyYieldSync(currentUserId, d);
                 }
             });
+        }
+
+        // BACKEND REALTIME PROFIT SYSTEM BYPASS ENGINE
+        function checkAndApplyLazyYieldSync(uid, userData) {
+            if (!userData.minersCount || userData.minersCount <= 0) return;
+            
+            const lastSyncDate = userData.lastYieldSyncTimestamp ? userData.lastYieldSyncTimestamp.toDate() : null;
+            const currentTime = new Date();
+
+            // Agar last check 24 ghante pehle ka ho
+            if (!lastSyncDate || (currentTime - lastSyncDate) >= 24 * 60 * 60 * 1000) {
+                // Default profit calculation metrics (Rs. 45 Per leased sub-station machine)
+                let computedProfitNode = userData.minersCount * 45; 
+
+                db.collection("users").doc(uid).update({
+                    balance: firebase.firestore.FieldValue.increment(computedProfitNode),
+                    lastYieldSyncTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    hasSpunToday: false // Reset spin core wheel variables automatically
+                }).then(() => {
+                    // Inject logging receipt into transaction collection database
+                    db.collection("deposits").add({
+                        userId: uid,
+                        amount: computedProfitNode,
+                        transactionId: "YIELD-" + Math.floor(100000 + Math.random() * 900000),
+                        gatewayChannel: "Hardware Cloud Yield Sync",
+                        status: "approved",
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    triggerToastDisplay(`+Rs. ${computedProfitNode} Automatic Daily Profit Credited! ⚡`);
+                });
+            }
         }
 
         function calculateNetworkHierarchyAnalytics(usernameToken) {
@@ -793,7 +829,7 @@
 
         function authenticateAdminSystemKey() {
             const key = document.getElementById('adminSecretKeyField').value;
-            if(key === "vestify786") { // Set your own secret passkey code here
+            if(key === "vestify786") {
                 document.getElementById('adminContentBody').style.display = 'block';
                 triggerToastDisplay("Access Granted. Cluster Overrides Activated.");
                 loadAdminPendingDepositsArray();
@@ -820,7 +856,7 @@
         }
 
         function approveDepositFromAdmin(docId, targetUid, baseAmount) {
-            const calculatedTotalGrant = baseAmount + (baseAmount * 0.08); // Include promo bonus logic matrix
+            const calculatedTotalGrant = baseAmount + (baseAmount * 0.08);
             const userRef = db.collection("users").doc(targetUid);
             
             db.runTransaction(transaction => {
