@@ -19,6 +19,7 @@
 
         /* Professional Identity Entry Portal */
         #authScreen, #secretAdminScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #040814; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        #secretAdminScreen { display: none; z-index: 100000; }
         .auth-container, .admin-container { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 28px; padding: 35px 24px; width: 100%; max-width: 420px; text-align: center; backdrop-filter: blur(25px); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .auth-tabs { display: flex; gap: 10px; margin-bottom: 25px; background: rgba(255,255,255,0.03); padding: 6px; border-radius: 14px; }
         .auth-tab-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; background: transparent; color: #94a3b8; font-weight: 700; cursor: pointer; transition: all 0.3s; }
@@ -72,7 +73,9 @@
 
         /* Spin Engine Layout Styles */
         .spin-box-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 24px; text-align: center; margin-top: 15px; }
-        .wheel-outer { width: 160px; height: 160px; border: 4px dashed #38bdf8; border-radius: 50%; margin: 15px auto; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: #38bdf8; transition: transform 3s cubic-bezier(0.1, 0.8, 0.1, 1); }
+        .wheel-container { position: relative; width: 180px; height: 180px; margin: 20px auto; }
+        .wheel-outer { width: 100%; height: 100%; border: 6px dashed #38bdf8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: #38bdf8; background: rgba(56,189,248,0.02); transition: transform 3s cubic-bezier(0.1, 0.8, 0.1, 1); }
+        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 18px solid #ff416c; z-index: 10; }
 
         /* Persistent Bottom Command Dock */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 70px; background: rgba(4, 8, 20, 0.9); backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 999; }
@@ -86,9 +89,16 @@
         .modal-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.3); color: white; font-size: 13px; margin-top: 10px; outline: none; }
         .close-modal-btn { position: absolute; top: 14px; right: 14px; color: #64748b; font-size: 20px; cursor: pointer; }
 
-        .reward-toast { position: fixed; top: 25px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #10b981; padding: 12px 20px; border-radius: 16px; z-index: 11000; font-weight: 700; font-size: 13px; transition: transform 0.3s ease; box-shadow: 0 10px 25px rgba(16,185,129,0.3); }
+        .reward-toast { position: fixed; top: 25px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #10b981; padding: 12px 20px; border-radius: 16px; z-index: 11000; font-weight: 700; font-size: 13px; transition: transform 0.3s ease; box-shadow: 0 10px 25px rgba(16,185,129,0.3); color: white; }
         .reward-toast.toast-show { transform: translateX(-50%) translateY(0); }
         .section-title { font-size:12px; color:#94a3b8; margin:20px 16px 10px 16px; text-transform:uppercase; letter-spacing: 0.5px; font-weight: 700; }
+        
+        /* Admin Log Dashboard List Styles */
+        .admin-item-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 12px; text-align: left; margin-bottom: 10px; font-size: 12px; }
+        .admin-btn-group { display: flex; gap: 8px; margin-top: 10px; }
+        .adm-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 11px; }
+        .adm-approve { background: #10b981; color: white; }
+        .adm-reject { background: #ef4444; color: white; }
     </style>
 </head>
 <body>
@@ -118,8 +128,22 @@
             <div style="margin: 15px 0; color: #64748b; font-size: 11px; font-weight: 700;">OR PROVIDE GOOGLE PASS TOKEN</div>
             
             <button class="google-auth-btn" onclick="executeGoogleAuthenticationLink()">
-                <img src="https://cdnjs.cloudflare.com/ajax/libs/gapi-cloud-apis-search/1.0.0/google.svg" width="18" alt=""> Continue via Google Cloud Link
+                Continue via Google Cloud Link
             </button>
+        </div>
+    </div>
+
+    <div id="secretAdminScreen">
+        <div class="admin-container" style="max-width: 500px; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="color: #ff416c;"><i class="fa-solid fa-user-shield"></i> Secret Admin Panel</h3>
+                <button class="buy-plan-btn" onclick="closeAdminPanel()" style="padding: 4px 10px; font-size: 11px;">Close</button>
+            </div>
+            <p style="font-size: 11px; color: #94a3b8; text-align: left; margin-bottom: 15px;">Pending User Deposit Approvals Pipeline Array:</p>
+            
+            <div id="adminPendingDepositsList" style="max-height: 400px; overflow-y: auto;">
+                <p style="color: #64748b; font-size: 12px; padding: 20px 0;">No logs cached inside verification streams...</p>
+            </div>
         </div>
     </div>
 
@@ -183,16 +207,6 @@
                 <div class="plan-details"><h4>Pod Alpha-5</h4><p>Cost: <b>Rs. 1,600</b> | Yield: <span>Rs. 145/Day</span></p></div>
                 <button class="buy-plan-btn" onclick="leaseHardwareNode('Pod Alpha-5', 1600, 145)">Lease</button>
             </div>
-            <div class="plan-card">
-                <div class="plan-icon-frame"><i class="fa-solid fa-box"></i></div>
-                <div class="plan-details"><h4>Pod Alpha-6</h4><p>Cost: <b>Rs. 2,000</b> | Yield: <span>Rs. 185/Day</span></p></div>
-                <button class="buy-plan-btn" onclick="leaseHardwareNode('Pod Alpha-6', 2000, 185)">Lease</button>
-            </div>
-            <div class="plan-card">
-                <div class="plan-icon-frame"><i class="fa-solid fa-box"></i></div>
-                <div class="plan-details"><h4>Pod Alpha-7</h4><p>Cost: <b>Rs. 2,500</b> | Yield: <span>Rs. 235/Day</span></p></div>
-                <button class="buy-plan-btn" onclick="leaseHardwareNode('Pod Alpha-7', 2500, 235)">Lease</button>
-            </div>
         </div>
 
         <div class="plans-grid" id="gridSpecial">
@@ -211,26 +225,6 @@
                 <div class="plan-details"><h4>Rig Stratum-3</h4><p>Cost: <b>Rs. 9,000</b> | Yield: <span>Rs. 890/Day</span></p></div>
                 <button class="buy-plan-btn" onclick="leaseHardwareNode('Rig Stratum-3', 9000, 890)">Lease</button>
             </div>
-            <div class="plan-card">
-                <div class="plan-icon-frame" style="color:#eab308;"><i class="fa-solid fa-layer-group"></i></div>
-                <div class="plan-details"><h4>Rig Stratum-4</h4><p>Cost: <b>Rs. 12,000</b> | Yield: <span>Rs. 1,220/Day</span></p></div>
-                <button class="buy-plan-btn" onclick="leaseHardwareNode('Rig Stratum-4', 12000, 1220)">Lease</button>
-            </div>
-            <div class="plan-card">
-                <div class="plan-icon-frame" style="color:#eab308;"><i class="fa-solid fa-layer-group"></i></div>
-                <div class="plan-details"><h4>Rig Stratum-5</h4><p>Cost: <b>Rs. 15,000</b> | Yield: <span>Rs. 1,550/Day</span></p></div>
-                <button class="buy-plan-btn" onclick="leaseHardwareNode('Rig Stratum-5', 15000, 1550)">Lease</button>
-            </div>
-            <div class="plan-card">
-                <div class="plan-icon-frame" style="color:#eab308;"><i class="fa-solid fa-layer-group"></i></div>
-                <div class="plan-details"><h4>Rig Stratum-6</h4><p>Cost: <b>Rs. 18,000</b> | Yield: <span>Rs. 1,900/Day</span></p></div>
-                <button class="buy-plan-btn" onclick="leaseHardwareNode('Rig Stratum-6', 18000, 1900)">Lease</button>
-            </div>
-            <div class="plan-card">
-                <div class="plan-icon-frame" style="color:#eab308;"><i class="fa-solid fa-layer-group"></i></div>
-                <div class="plan-details"><h4>Rig Stratum-7</h4><p>Cost: <b>Rs. 20,000</b> | Yield: <span>Rs. 2,150/Day</span></p></div>
-                <button class="buy-plan-btn" onclick="leaseHardwareNode('Rig Stratum-7', 20000, 2150)">Lease</button>
-            </div>
         </div>
 
         <div class="plans-grid" id="gridOffers">
@@ -243,26 +237,6 @@
                 <div class="plan-icon-frame" style="color:#a855f7;"><i class="fa-solid fa-bolt-lightning"></i></div>
                 <div class="plan-details"><h4>Matrix Overdrive-2</h4><p>Cost: <b>Rs. 50,000</b> | Yield: <span>Rs. 6,000/Day</span></p></div>
                 <button class="buy-plan-btn" onclick="leaseHardwareNode('Matrix Overdrive-2', 50000, 6000)">Lease</button>
-            </div>
-            <div class="plan-card">
-                <div class="plan-icon-frame" style="color:#a855f7;"><i class="fa-solid fa-bolt-lightning"></i></div>
-                <div class="plan-details"><h4>Matrix Overdrive-3</h4><p>Cost: <b>Rs. 75,000</b> | Yield: <span>Rs. 9,500/Day</span></p></div>
-                <button class="buy-plan-btn" onclick="leaseHardwareNode('Matrix Overdrive-3', 75000, 9500)">Lease</button>
-            </div>
-            <div class="plan-card">
-                <div class="plan-icon-frame" style="color:#a855f7;"><i class="fa-solid fa-bolt-lightning"></i></div>
-                <div class="plan-details"><h4>Matrix Overdrive-4</h4><p>Cost: <b>Rs. 100,000</b> | Yield: <span>Rs. 13,500/Day</span></p></div>
-                <button class="buy-plan-btn" onclick="leaseHardwareNode('Matrix Overdrive-4', 100000, 13500)">Lease</button>
-            </div>
-            <div class="plan-card">
-                <div class="plan-icon-frame" style="color:#a855f7;"><i class="fa-solid fa-bolt-lightning"></i></div>
-                <div class="plan-details"><h4>Matrix Overdrive-5</h4><p>Cost: <b>Rs. 125,000</b> | Yield: <span>Rs. 17,500/Day</span></p></div>
-                <button class="buy-plan-btn" onclick="leaseHardwareNode('Matrix Overdrive-5', 125000, 17500)">Lease</button>
-            </div>
-            <div class="plan-card">
-                <div class="plan-icon-frame" style="color:#a855f7;"><i class="fa-solid fa-bolt-lightning"></i></div>
-                <div class="plan-details"><h4>Matrix Overdrive-6</h4><p>Cost: <b>Rs. 150,000</b> | Yield: <span>Rs. 22,000/Day</span></p></div>
-                <button class="buy-plan-btn" onclick="leaseHardwareNode('Matrix Overdrive-6', 150000, 22000)">Lease</button>
             </div>
         </div>
 
@@ -277,7 +251,10 @@
 
         <div class="spin-box-card">
             <h4>🎉 Lucky Core Daily Bonus Engine 🎉</h4>
-            <div class="wheel-outer" id="luckyBonusWheel">SPIN LINK</div>
+            <div class="wheel-container">
+                <div class="wheel-pointer"></div>
+                <div class="wheel-outer" id="luckyBonusWheel">LUCKY DOCK</div>
+            </div>
             <button class="buy-plan-btn" onclick="triggerLuckyCoreSpin()" style="padding:10px 24px;">LAUNCH REWARD SPIN</button>
         </div>
     </div>
@@ -403,6 +380,7 @@
     </div>
 
     <script>
+        // Production Configuration Nodes Matrix Map
         const firebaseConfig = {
             apiKey: "AIzaSyC9ofJ1KxRXHnxilpU9gyI87D3BSOZ9v1g",
             authDomain: "vestify-991f2.firebaseapp.com",
@@ -423,8 +401,8 @@
         let currentAuthTabMode = "login";
         let activeGatewayChannel = "EasyPaisa";
         let userCustomUsernameToken = "";
+        let logoTapTrackerCounter = 0;
 
-        // Synchronized Account Settings Architecture
         const paymentGatewayMerchantConfig = {
             "EasyPaisa": { number: "03379827882", title: "EasyPaisa Central Node" },
             "JazzCash": { number: "03705519562", title: "JazzCash Central Node" },
@@ -445,6 +423,7 @@
                 syncProfileRealtimeMetrics();
                 syncUserLedgerTracks();
                 initializeCountdownClockTicker();
+                listenAdminPendingDeposits();
             } else {
                 currentUserId = null;
                 document.getElementById('authScreen').style.display = 'flex';
@@ -694,10 +673,15 @@
                 if(doc.data().hasSpunToday) { triggerToastDisplay("Limit reached: 1 cycle per day interval."); return; }
                 
                 const matrixPrizes = [5, 10, 20, 50, 100];
-                const winToken = matrixPrizes[Math.floor(Math.random() * matrixPrizes.length)];
-                const wheel = document.getElementById('luckyBonusWheel');
+                const prizeIndex = Math.floor(Math.random() * matrixPrizes.length);
+                const winToken = matrixPrizes[prizeIndex];
                 
-                wheel.style.transform = "rotate(1440deg)";
+                const degreesPerSegment = 360 / matrixPrizes.length;
+                const totalRotationDegrees = 1440 + (prizeIndex * degreesPerSegment);
+                
+                const wheel = document.getElementById('luckyBonusWheel');
+                wheel.style.transform = `rotate(${totalRotationDegrees}deg)`;
+                
                 setTimeout(() => {
                     db.collection("users").doc(currentUserId).update({
                         balance: userCurrentBalance + winToken, hasSpunToday: true
@@ -714,7 +698,8 @@
                 let html = "";
                 snap.forEach(doc => {
                     const d = doc.data();
-                    html += `<div class="history-card"><div><b>Rs. ${d.amount}</b><p>${d.transactionId} (${d.gatewayChannel})</p></div><span>${d.status}</span></div>`;
+                    let color = d.status === "approved" ? "#10b981" : d.status === "pending" ? "#eab308" : "#ef4444";
+                    html += `<div class="history-card"><div><b>Rs. ${d.amount}</b><p>${d.transactionId} (${d.gatewayChannel})</p></div><span style="color:${color}; font-weight:700;">${d.status.toUpperCase()}</span></div>`;
                 });
                 document.getElementById('userHistoryRecordsList').innerHTML = html || "Financial tracks void inside data ledger loops.";
             });
@@ -750,7 +735,79 @@
             const t = document.getElementById('rewardToast'); t.innerText = msg; t.classList.add('toast-show');
             setTimeout(() => t.classList.remove('toast-show'), 2500);
         }
-        function registerAdminLogoTap() { /* Secret Admin hooks link structure */ }
+
+        /* SECRET ADMINISTRATOR ENGINE SYSTEM INTERFACE TRACKER */
+        function registerAdminLogoTap() {
+            logoTapTrackerCounter++;
+            if(logoTapTrackerCounter >= 5) {
+                logoTapTrackerCounter = 0;
+                document.getElementById('secretAdminScreen').style.display = 'flex';
+                triggerToastDisplay("Admin Node Override Verification Stream Active!");
+            }
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('secretAdminScreen').style.display = 'none';
+        }
+
+        function listenAdminPendingDeposits() {
+            db.collection("deposits").where("status", "==", "pending").onSnapshot(snap => {
+                let listHtml = "";
+                if(snap.empty) {
+                    document.getElementById('adminPendingDepositsList').innerHTML = `<p style="color: #64748b; font-size: 12px; padding: 20px 0;">No pending deposit requests in array.</p>`;
+                    return;
+                }
+                
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    listHtml += `
+                        <div class="admin-item-card" id="adm-${doc.id}">
+                            <div><b>User ID:</b> ${data.userId}</div>
+                            <div><b>Amount:</b> Rs. ${data.amount}</div>
+                            <div><b>Gateway:</b> ${data.gatewayChannel}</div>
+                            <div><b>TID Reference:</b> <span style="color:#38bdf8; font-weight:700;">${data.transactionId}</span></div>
+                            <div class="admin-btn-group">
+                                <button class="adm-btn adm-approve" onclick="processDepositResolution('${doc.id}', '${data.userId}', ${data.amount}, 'approved')">Approve</button>
+                                <button class="adm-btn adm-reject" onclick="processDepositResolution('${doc.id}', '${data.userId}', ${data.amount}, 'rejected')">Reject</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('adminPendingDepositsList').innerHTML = listHtml;
+            });
+        }
+
+        function processDepositResolution(depositId, targetUid, depositAmt, finalDecision) {
+            const batchResolution = db.batch();
+            const depositDocRef = db.collection("deposits").doc(depositId);
+            
+            batchResolution.update(depositDocRef, { status: finalDecision });
+
+            if(finalDecision === 'approved') {
+                const userDocRef = db.collection("users").doc(targetUid);
+                
+                db.collection("users").doc(targetUid).get().then(userSnapshot => {
+                    if(userSnapshot.exists) {
+                        let currentBalance = userSnapshot.data().balance || 0;
+                        let promotionalBonusAmt = depositAmt * 0.08;
+                        let updatedBalanceNode = currentBalance + depositAmt + promotionalBonusAmt;
+                        
+                        batchResolution.update(userDocRef, { 
+                            balance: updatedBalanceNode,
+                            isActiveDepositor: true
+                        });
+                        
+                        return batchResolution.commit();
+                    }
+                }).then(() => {
+                    triggerToastDisplay(`Transaction updated & Approved successfully!`);
+                }).catch(err => triggerToastDisplay("Batch Resolution Fail: " + err));
+            } else {
+                batchResolution.commit().then(() => {
+                    triggerToastDisplay(`Transaction Marked As Rejected.`);
+                });
+            }
+        }
     </script>
 </body>
 </html>
