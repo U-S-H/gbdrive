@@ -495,7 +495,7 @@
         const paymentGatewayMerchantConfig = {
             "EasyPaisa": { number: "03379827882", title: "EasyPaisa Central Node" },
             "JazzCash": { number: "03705519562", title: "JazzCash Central Node" },
-            "USDT": { number: "YOUR_BINANCE_USDT_TRC20_ADDRESS", title: "Binance Crypto Target (TRC20)" }
+            "USDT": { number: "COMING SOON", title: "Binance Crypto Target (TRC20)" }
         };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -723,7 +723,7 @@
         function copyUserReferralLink() {
             let text = document.getElementById('lblDisplayInviteLink').innerText;
             navigator.clipboard.writeText(text);
-            triggerToastDisplay("Referral tracking link copied,! 🚀");
+            triggerToastDisplay("Referral tracking link copied, sir! 🚀");
         }
 
         function updateDepositCalculations() {
@@ -824,7 +824,7 @@
             db.collection("users").doc(currentUserId).get().then(doc => {
                 if(doc.data().hasSpunToday) { triggerToastDisplay("Limit reached: 1 cycle per day interval."); return; }
                 
-                const matrixPrizes = [5, 10, 4, 8, better luck next time,1, 3, 50, 12, better luck next time, 20, 14, better luck next time, 15];
+                const matrixPrizes = [5, 10, 4, 8, 0, 1, 3, 50, 12, 6, 20, 14, 0, 15];
                 const winToken = matrixPrizes[Math.floor(Math.random() * matrixPrizes.length)];
                 const wheel = document.getElementById('luckyBonusWheel');
                 
