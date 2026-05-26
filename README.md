@@ -723,7 +723,7 @@
         function copyUserReferralLink() {
             let text = document.getElementById('lblDisplayInviteLink').innerText;
             navigator.clipboard.writeText(text);
-            triggerToastDisplay("Referral tracking link copied, sweetie! 🚀");
+            triggerToastDisplay("Referral tracking link copied,! 🚀");
         }
 
         function updateDepositCalculations() {
@@ -824,7 +824,7 @@
             db.collection("users").doc(currentUserId).get().then(doc => {
                 if(doc.data().hasSpunToday) { triggerToastDisplay("Limit reached: 1 cycle per day interval."); return; }
                 
-                const matrixPrizes = [5, 10, 20, 50, 100];
+                const matrixPrizes = [5, 10, 4, 8, better luck next time,1, 3, 50, 12, better luck next time, 20, 14, better luck next time, 15];
                 const winToken = matrixPrizes[Math.floor(Math.random() * matrixPrizes.length)];
                 const wheel = document.getElementById('luckyBonusWheel');
                 
