@@ -495,7 +495,7 @@
         const paymentGatewayMerchantConfig = {
             "EasyPaisa": { number: "03379827882", title: "EasyPaisa Central Node" },
             "JazzCash": { number: "03705519562", title: "JazzCash Central Node" },
-            "USDT": { number: "COMING SOON", title: "Binance Crypto Target (TRC20)" }
+            "USDT": { number: "TAbL8qiZVvXuuRfULiEqGxFuQJQZkfTyH3", title: "Binance Crypto Target (TRC20)" }
         };
 
         window.addEventListener('DOMContentLoaded', () => {
