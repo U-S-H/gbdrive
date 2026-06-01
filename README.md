@@ -824,7 +824,7 @@
             db.collection("users").doc(currentUserId).get().then(doc => {
                 if(doc.data().hasSpunToday) { triggerToastDisplay("Limit reached: 1 cycle per day interval."); return; }
                 
-                const matrixPrizes = [5, 10, 4, 8, 0, 1, 3, 50, 12, 6, 20, 14, 0, 15];
+                const matrixPrizes = [5, 10, 4, 8, 10, 1, 3, 5, 7, 6, 2, 1, 6, 8];
                 const winToken = matrixPrizes[Math.floor(Math.random() * matrixPrizes.length)];
                 const wheel = document.getElementById('luckyBonusWheel');
                 
